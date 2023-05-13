@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Dagosu/BookingApp/config"
+	"github.com/Dagosu/BookingApp/booking-api/config"
 )
 
 const (
