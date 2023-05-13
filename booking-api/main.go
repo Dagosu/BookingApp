@@ -4,8 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	grpcDelivery "github.com/Dagosu/BookingApp/booking-api/app/delivery/grpc"
+	"github.com/Dagosu/BookingApp/booking-api/app/persistence"
+	"github.com/Dagosu/BookingApp/booking-api/app/usecase"
 	"github.com/Dagosu/BookingApp/booking-api/config"
 	"github.com/Dagosu/BookingApp/gohelpers/database"
+	gs "github.com/Dagosu/BookingApp/gohelpers/grpcserver"
+	"github.com/Dagosu/BookingApp/gohelpers/keep"
+	"google.golang.org/grpc"
 )
 
 const (
@@ -28,9 +34,6 @@ func run() error {
 
 	d, err := database.Init(
 		config.C.MongoURI,
-		database.RegisterEnumStringCodec,
-		database.RegisterFlightDisplayDecoder,
-		database.RegisterDurationPBDecoder,
 	)
 	if err != nil {
 		return fmt.Errorf("Cannot connect to Mongo %v", err)
@@ -43,24 +46,24 @@ func run() error {
 	// }
 	// defer services.Close()
 
-	// s, err := gs.New(
-	// 	gs.WithGRPCPort(config.C.GrpcPort),
-	// 	gs.WithMetricsPort(config.C.MetricsPort),
-	// 	gs.WithReflection(config.C.Development),
-	// )
-	// if err != nil {
-	// 	return fmt.Errorf("Couldn't create grpcserver, %v", err)
-	// }
+	s, err := gs.New(
+		gs.WithGRPCPort(config.C.GrpcPort),
+		gs.WithMetricsPort(config.C.MetricsPort),
+		gs.WithReflection(config.C.Development),
+	)
+	if err != nil {
+		return fmt.Errorf("Couldn't create grpcserver, %v", err)
+	}
 
-	// r := persistence.NewRepositories(d, dLogs, services.IamClient)
-	// u := usecase.NewUsecases(r, services)
+	r := persistence.NewRepositories(d)
+	u := usecase.NewUsecases(r)
 
-	// s.Init(func(s *grpc.Server) {
-	// 	grpcDelivery.RegisterServices(s, u, d)
-	// })
-	// defer s.Close()
+	s.Init(func(s *grpc.Server) {
+		grpcDelivery.RegisterServices(s, u, d)
+	})
+	defer s.Close()
 
-	// keep.WaitForSignal()
+	keep.WaitForSignal()
 
 	return nil
 }

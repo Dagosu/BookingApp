@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package test;
+
+option go_package = "github.com/Dagosu/BookingApp/datatypes";
+
+message TestEndpointRequest {
+    string request = 1;
+}
+message TestEndpointResponse {
+    string response = 1;
+}
+
+service TestService {
+    rpc TestEndpoint(TestEndpointRequest) returns (TestEndpointResponse);
+}
