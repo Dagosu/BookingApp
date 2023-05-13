@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Dagosu/BookingApp/booking-api/config"
+	"github.com/Dagosu/BookingApp/gohelpers/database"
 )
 
 const (
@@ -20,8 +21,21 @@ func main() {
 }
 
 func run() error {
-	test := config.C.MongoURI
-	fmt.Println(test)
+	err := config.EnvSetup()
+	if err != nil {
+		panic(err)
+	}
+
+	d, err := database.Init(
+		config.C.MongoURI,
+		database.RegisterEnumStringCodec,
+		database.RegisterFlightDisplayDecoder,
+		database.RegisterDurationPBDecoder,
+	)
+	if err != nil {
+		return fmt.Errorf("Cannot connect to Mongo %v", err)
+	}
+	defer d.Close()
 
 	// services, err := service.NewServices(cc)
 	// if err != nil {
