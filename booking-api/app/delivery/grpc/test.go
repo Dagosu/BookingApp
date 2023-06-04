@@ -12,17 +12,19 @@ type testServiceServer struct {
 	tu domain.TestUsecase
 }
 
-// var _ dt.FlightServiceServer = &flightServiceServer{}
+var _ dt.TestServiceServer = &testServiceServer{}
 
 func newTestServiceServer(tu domain.TestUsecase) dt.TestServiceServer {
 	return &testServiceServer{tu}
 }
 
 func (ts *testServiceServer) TestEndpoint(ctx context.Context, req *dt.TestEndpointRequest) (*dt.TestEndpointResponse, error) {
-	err := ts.tu.TestEndpoint(ctx)
+	response, err := ts.tu.TestEndpoint(ctx, req.GetRequest())
 	if err != nil {
 		return nil, fmt.Errorf("error")
 	}
 
-	return nil, fmt.Errorf("error")
+	return &dt.TestEndpointResponse{
+		Response: response,
+	}, nil
 }

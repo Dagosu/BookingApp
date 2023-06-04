@@ -22,8 +22,10 @@ func newTestRepository(d *database.Db) *testRepository {
 	}
 }
 
-func (tr *testRepository) TestEndpoint(ctx context.Context) error {
+func (tr *testRepository) TestEndpoint(ctx context.Context, request string) (string, error) {
 	pp.Println("testtest")
 
-	return nil
+	request = request + " YES "
+
+	return request, nil
 }

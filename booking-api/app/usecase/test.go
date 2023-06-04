@@ -22,8 +22,11 @@ func newTestUsecase(fr domain.TestRepository) *testUsecase {
 	return &testUsecase{fr, nil}
 }
 
-func (tu *testUsecase) TestEndpoint(ctx context.Context) error {
-	tu.tr.TestEndpoint(ctx)
+func (tu *testUsecase) TestEndpoint(ctx context.Context, request string) (string, error) {
+	response, err := tu.tr.TestEndpoint(ctx, request)
+	if err != nil {
+		return "", err
+	}
 
-	return nil
+	return response, nil
 }

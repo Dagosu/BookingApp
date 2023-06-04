@@ -1,0 +1,11 @@
+input TestEndpointInput {
+  request: String
+}
+
+type TestEndpointResponse {
+  response: String
+}
+
+type Query {
+  testEndpoint(in: TestEndpointInput!): TestEndpointResponse!
+}

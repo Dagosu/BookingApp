@@ -8,27 +8,22 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/99designs/gqlgen/example/starwars/generated"
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	ghc "github.com/Dagosu/BookingApp/gohelpers/config"
-	"github.com/Dagosu/BookingApp/gohelpers/configload"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Dagosu/BookingApp/graphql-middleware/config"
-	"github.com/Dagosu/BookingApp/graphql-middleware/graph"
-	"github.com/Dagosu/BookingApp/graphql-middleware/graph/auth"
-	"github.com/Dagosu/BookingApp/graphql-middleware/middleware"
+	graph "github.com/Dagosu/BookingApp/graphql-middleware/graph"
+	generated "github.com/Dagosu/BookingApp/graphql-middleware/graph/generated"
 	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
 )
 
-func main() {
-	configload.Hydrate(&config.C)
-	configload.Hydrate(&ghc.C)
+const defaultPort = "8080"
 
+func main() {
 	s, err := graph.NewGraphQLServer()
 	if err != nil {
 		log.Fatalln("Cannot create new GraphQL server", err)
@@ -36,12 +31,12 @@ func main() {
 	defer s.Close()
 
 	router := chi.NewRouter()
+	srv := newGraphQLHandler(s)
+
+	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 
 	// GraphQL entry point
 	router.Group(func(router chi.Router) {
-		router.Use(auth.HTTPMiddleware())
-		router.Use(middleware.ScopeHTTPMiddleware())
-
 		allowedOrigins := []string{
 			fmt.Sprintf("http://localhost:%s", config.C.Port),
 			"electron://altair",
@@ -55,12 +50,15 @@ func main() {
 			Debug:            false,
 			AllowedHeaders:   []string{"*"},
 		}).Handler)
+		router.Use(func(next http.Handler) http.Handler {
+			return middleware(srv)
+		})
 
 		router.Handle("/query", router)
 	})
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", config.C.Port)
-	log.Fatal(http.ListenAndServe(":"+config.C.Port, router))
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", "8080")
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 func newGraphQLHandler(s *graph.Server) *handler.Server {
@@ -69,7 +67,7 @@ func newGraphQLHandler(s *graph.Server) *handler.Server {
 	srv := handler.New(es)
 
 	// limit query complexity
-	srv.Use(extension.FixedComplexityLimit(config.C.QueryComplexityLimit))
+	srv.Use(extension.FixedComplexityLimit(4000))
 
 	srv.AddTransport(transport.Websocket{
 		KeepAlivePingInterval: 15 * time.Second,
@@ -83,7 +81,6 @@ func newGraphQLHandler(s *graph.Server) *handler.Server {
 			WriteBufferSize:   1024,
 			EnableCompression: true,
 		},
-		InitFunc: websocketInitChain,
 	})
 
 	srv.AddTransport(transport.Options{})
@@ -112,12 +109,6 @@ func newGraphQLHandler(s *graph.Server) *handler.Server {
 // addDirectives adds custom directives declared in the schema
 // see https://gqlgen.com/reference/directives/
 func addDirectives(c generated.Config) generated.Config {
-	c.Directives.ResourceMdmResource = func(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
-		return next(ctx)
-	}
-	c.Directives.KPIResourceKpi = func(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
-		return next(ctx)
-	}
 	return c
 }
 
@@ -127,13 +118,8 @@ func recoverFunc(ctx context.Context, err interface{}) error {
 	return errors.New("Internal server error")
 }
 
-func websocketInitChain(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
-	// fetch access token
-	chainCtx, err := auth.WebsocketInit(ctx, initPayload)
-	if err != nil {
-		return ctx, err
-	}
-
-	// fetch scope
-	return middleware.ScopeWebsocketInit(chainCtx, initPayload)
+func middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r.WithContext(r.Context()))
+	})
 }
