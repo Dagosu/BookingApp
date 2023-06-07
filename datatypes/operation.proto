@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package operation;
+
+option go_package = "github.com/Dagosu/BookingApp/datatypes";
+
+enum OperationType {
+  UNKNOWN_UNSPECIFIED = 0;
+  INSERT = 1;
+  REPLACE = 2;
+  UPDATE = 3;
+  DELETE = 4;
+
+  // initial data send completed, but server remains connected
+  // so it can send further updates
+  READY = 5;
+
+  // on client display the `error` field
+  ERROR = 6;
+
+  // used to notify client about a long operation status
+  PROGRESS = 7;
+
+  // operation was finished, server should disconnect after sending this
+  FINISHED = 8;
+}

@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package field_type;
+
+option go_package = "github.com/Dagosu/BookingApp/datatypes";
+
+// FieldType details on how to render a certain field.
+// The types should be limited to primitives. Expansion on custom types should
+// be indicated by field type = CUSTOM + field `type_hint`
+enum FieldType {
+  // FIELD_TYPE_UNSPECIFIED is the default value, it should not be used
+  FIELD_TYPE_UNSPECIFIED = 0;
+
+  // FIELD_TYPE_STRING is used for text
+  FIELD_TYPE_STRING = 1;
+
+  // FIELD_TYPE_INTEGER is used for numbers without decimals
+  FIELD_TYPE_INTEGER = 2;
+
+  // FIELD_TYPE_DATETIME is used for absolute timestamps
+  FIELD_TYPE_DATETIME = 3;
+
+  // FIELD_TYPE_BOOLEAN is used for boolean values
+  FIELD_TYPE_BOOLEAN = 4;
+
+  // TDS: Move this to somewhere else
+  // https://airportlabs.atlassian.net/browse/AODBSC-266
+  FIELD_TYPE_MDM_RESOURCE = 5;
+
+  // FIELD_TYPE_CUSTOM is used for custom types
+  FIELD_TYPE_CUSTOM = 6;
+
+  // FIELD_TYPE_DURATION is used for relative time durations
+  FIELD_TYPE_DURATION = 7;
+
+  // TDS: Move this to somewhere else
+  // https://airportlabs.atlassian.net/browse/AODBSC-266
+  FIELD_TYPE_CALCULATED_FIELD = 8;
+
+  // FIELD_TYPE_ENUM is used for enums
+  FIELD_TYPE_ENUM = 9;
+}

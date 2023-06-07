@@ -1,3 +1,86 @@
+"""
+Objects
+"""
+enum OperationType {
+	UNKNOWN_UNSPECIFIED
+	INSERT
+	REPLACE
+	UPDATE
+	DELETE
+	"""
+	 initial data send completed, but server remains connected
+	 so it can send further updates
+	
+	"""
+	READY
+	"""
+	 on client display the `error` field
+	
+	"""
+	ERROR
+	"""
+	 used to notify client about a long operation status
+	
+	"""
+	PROGRESS
+	"""
+	 operation was finished, server should disconnect after sending this
+	
+	"""
+	FINISHED
+}
+
+enum ViewSortOrder {
+	VIEW_SORT_ORDER_UNSPECIFIED
+	ASC
+	DESC
+}
+
+"""
+Input
+"""
+input FilterParamInput {
+	condition: String
+	field: String
+	operator: String
+	value: String
+}
+
+input SortParamInput {
+	field: String
+	order: ViewSortOrder
+}
+
+"""
+Type
+"""
+type Timestamp {
+	"""
+	 Represents seconds of UTC time since Unix epoch
+	 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+	 9999-12-31T23:59:59Z inclusive.
+	
+	"""
+	seconds: Int
+	"""
+	 Non-negative fractions of a second at nanosecond resolution. Negative
+	 second values with fractions must still have non-negative nanos values
+	 that count forward in time. Must be from 0 to 999,999,999
+	 inclusive.
+	
+	"""
+	nanos: Int
+}
+
+type MyObject {
+  id: ID!
+  name: String
+  date: Timestamp
+}
+
+"""
+Query
+"""
 input TestEndpointInput {
   request: String
 }
@@ -8,4 +91,24 @@ type TestEndpointResponse {
 
 type Query {
   testEndpoint(in: TestEndpointInput!): TestEndpointResponse!
+}
+
+"""
+Subscription
+"""
+input TestListInput {
+	limit: Int
+	offset: Int
+	query: String
+	sorts: [SortParamInput!]
+	filter: [FilterParamInput!]
+}
+
+type TestListResponse {
+	operationType: OperationType
+	objects: [MyObject!]
+}
+
+type Subscription {
+  testList(in: TestListInput!): TestListResponse!
 }

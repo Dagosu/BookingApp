@@ -2,7 +2,22 @@ syntax = "proto3";
 
 package test;
 
+import "google/protobuf/timestamp.proto";
+import "operation.proto";
+
 option go_package = "github.com/Dagosu/BookingApp/datatypes";
+
+enum ViewSortOrder {
+    VIEW_SORT_ORDER_UNSPECIFIED = 0;
+    ASC = 1;
+    DESC = 2;
+}
+
+message MyObject {
+    string id = 1;
+    string name = 2;
+    google.protobuf.Timestamp date = 3;
+}
 
 message TestEndpointRequest {
     string request = 1;
@@ -11,6 +26,48 @@ message TestEndpointResponse {
     string response = 1;
 }
 
+message TestListRequest {
+    // limit is used to only show a specified number of documents
+    int32 limit = 1;
+    // offset is used to skip a specified number of documents
+    int32 offset = 2;
+    // query is the query parameter used for free text search
+    string query = 3;
+    // sorts suports sorting by multiple SortParam parameters
+    repeated SortParam sorts = 4;
+    // filter support filtering by multiple FilterParam parameters
+    repeated FilterParam filter = 5;
+}
+
+message TestListResponse {
+    MyObject object = 1;
+    repeated MyObject objects = 2;
+    // operation_type for current message
+    operation.OperationType operation_type = 3;
+}
+
+// SortParam represents the sort query
+message SortParam {
+    // field is the field path we want to sort 
+    string field = 1;
+    // order is the order direction we want to sort the field
+    ViewSortOrder order = 2;
+}
+
+// FilterParam represents the filter query
+message FilterParam {
+    // condition is the type of filter (and, or)
+    string condition = 1;
+    // field is the field path we want to filter
+    string field = 2;
+    // operator is the type of filter (accepted values: eq, ne, lt, gt, lte,
+    // gte, contains, begins, ends, pastX, nextX, relativePastX, relativeNextX)
+    string operator = 3;
+    // value is the value of the field we want to search against
+    string value = 4;
+}
+
 service TestService {
     rpc TestEndpoint(TestEndpointRequest) returns (TestEndpointResponse);
+    rpc TestList(TestListRequest) returns (stream TestListResponse);
 }

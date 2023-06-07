@@ -28,3 +28,7 @@ func (ts *testServiceServer) TestEndpoint(ctx context.Context, req *dt.TestEndpo
 		Response: response,
 	}, nil
 }
+
+func (ts *testServiceServer) TestList(req *dt.TestListRequest, stream dt.TestService_TestListServer) error {
+	return ts.tu.ListMyObjects(req, stream)
+}

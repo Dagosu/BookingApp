@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package mdm;
+
+import "field_type.proto";
+import "google/protobuf/descriptor.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/Dagosu/BookingApp/datatypes";
+
+message EnumValue {
+  // label of the value eg: I (International)
+  string label = 1;
+
+  // value eg: I
+  string value = 2;
+}
+
+// FieldDescriptor contains metadata about a field
+message FieldDescriptor {
+  // id is the field descriptor's unique identifier randomly generated.
+  string id = 1;
+
+  // created_at is the time when the document was first inserted into the
+  // database.
+  google.protobuf.Timestamp created_at = 2;
+
+  // updated_at is the time when document was last updated.
+  google.protobuf.Timestamp updated_at = 3;
+
+  // view_types is data_view.proto type correspondent. It can be anything, but
+  // if used in a multi service app, the recommendation is to prefix the type
+  // with the service name eg: 'flight::flights' or 'mdm::airlines'
+  repeated string view_types = 4;
+
+  // name is the flat identifier field descriptor's name. This is the identifier
+  // that services should use when filtering fields / displaying permissions per
+  // field / asking for a field's descriptor / etc should be unique per
+  // view_type (no two field descriptors with the same name for the same
+  // view_type) Eg: "pax_boarded"
+  string name = 5;
+
+  // label is the human readable descriptor. Usually displayed as labels in
+  // forms, table headings, etc Eg: "Pax Brd"
+  string label = 6;
+
+  // description contains the human readable description.
+  // Eg: "Passengers boarded"
+  string description = 7;
+
+  // path is the "dot" notation path of field in documents (of type indicated by
+  // view_type). Eg: "pax.boarded"
+  string path = 8;
+
+  // type of the field (used for rendering / validation). If a primitive
+  // type is not sufficient (the field represents for example a structure),
+  // "CUSTOM" `type` + `type_hint` should be used
+  field_type.FieldType type = 9;
+
+  // type_hint is where an extension to type should be placed.
+  // eg: "multi_line"
+  string type_hint = 10;
+
+  // da_name is the field name used in DA previous AODB implementation. It
+  // serves to provide insight and mapping when parsing data. Eg: "NOSE"
+  string da_name = 11;
+
+  // format is helpful (mostly for datetime/timestamp) to have a format how the
+  // value of the field should be displayed
+  // eg: "dd/mm/yyyy"
+  string format = 12;
+
+  // sources from where the field values can be updated
+  repeated string sources = 13;
+
+  // alrn of the field descriptor
+  string alrn = 14;
+
+  // field_type - is the actual field type
+  string field_type = 15;
+
+  // enum_values - for type enum
+  repeated EnumValue enum_values = 16;
+
+  // deleted_at is time when the record was marked as deleted
+  google.protobuf.Timestamp deleted_at = 17;
+
+  // deleted_by is the user that deleted the record
+  string deleted_by = 18;
+}
+
+extend google.protobuf.FieldOptions {
+  // meta is used for what?
+  FieldDescriptor meta = 1234;
+}

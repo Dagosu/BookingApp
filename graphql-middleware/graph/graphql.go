@@ -70,10 +70,10 @@ func (s *Server) Query() generated.QueryResolver {
 	}
 }
 
-// func (s *Server) Subscription() generated.SubscriptionResolver {
-// 	return &subscriptionResolver{
-// 		&Resolver{
-// 			server: s,
-// 		},
-// 	}
-// }
+func (s *Server) Subscription() generated.SubscriptionResolver {
+	return &subscriptionResolver{
+		&Resolver{
+			server: s,
+		},
+	}
+}

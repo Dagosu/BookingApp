@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	graph "github.com/Dagosu/BookingApp/graphql-middleware/graph/generated"
 	"github.com/Dagosu/BookingApp/graphql-middleware/graph/model"
@@ -16,7 +17,16 @@ func (r *queryResolver) TestEndpoint(ctx context.Context, in model.TestEndpointI
 	return r.resolveTestEndpoint(ctx, in)
 }
 
+// TestList is the resolver for the testList field.
+func (r *subscriptionResolver) TestList(ctx context.Context, in model.TestListInput) (<-chan *model.TestListResponse, error) {
+	panic(fmt.Errorf("not implemented: TestList - testList"))
+}
+
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
+// Subscription returns graph.SubscriptionResolver implementation.
+func (r *Resolver) Subscription() graph.SubscriptionResolver { return &subscriptionResolver{r} }
+
 type queryResolver struct{ *Resolver }
+type subscriptionResolver struct{ *Resolver }

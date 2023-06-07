@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Dagosu/BookingApp/booking-api/app/domain"
+	dt "github.com/Dagosu/BookingApp/datatypes"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -29,4 +30,8 @@ func (tu *testUsecase) TestEndpoint(ctx context.Context, request string) (string
 	}
 
 	return response, nil
+}
+
+func (tu *testUsecase) ListMyObjects(req *dt.TestListRequest, stream dt.TestService_TestListServer) error {
+	return tu.tr.ListMyObjects(req, stream)
 }
