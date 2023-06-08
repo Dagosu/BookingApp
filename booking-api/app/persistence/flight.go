@@ -1,39 +1,40 @@
 package persistence
 
 import (
-	"context"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Dagosu/BookingApp/booking-api/app/service"
 	dt "github.com/Dagosu/BookingApp/datatypes"
 	"github.com/Dagosu/BookingApp/gohelpers/database"
 	dbDomain "github.com/Dagosu/BookingApp/gohelpers/database/domain"
-	"github.com/k0kubun/pp"
+	"github.com/Dagosu/BookingApp/gohelpers/fielddescriptor"
+	"github.com/Dagosu/BookingApp/gohelpers/isodate"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type testRepository struct {
+type flightRepository struct {
 	c  dbDomain.MongoCollection
 	sm *database.SubscriptionsMux
 }
 
-type myObjectGenericType struct {
-	stream dt.TestService_TestListServer
+type flightGenericType struct {
+	stream dt.FlightService_FlightListServer
 }
 
 var (
-	_ database.GenericType = &myObjectGenericType{}
+	_ database.GenericType = &flightGenericType{}
 
 	relativeTimeRegex = regexp.MustCompile(`(\S\d+)([a-zA-Z]{2})`)
 	testNoQuery       = regexp.MustCompile(`^[0-9]?[a-zA-Z]{1,2}[0-9]?\s[0-9]{1,4}\s*[a-zA-Z]?$`)
 )
 
-func (ft *myObjectGenericType) New(id ...string) interface{ GetId() string } {
-	f := &dt.MyObject{}
+func (ft *flightGenericType) New(id ...string) interface{ GetId() string } {
+	f := &dt.Flight{}
 
 	if len(id) > 0 {
 		f.Id = id[0]
@@ -42,48 +43,41 @@ func (ft *myObjectGenericType) New(id ...string) interface{ GetId() string } {
 	return f
 }
 
-func (ft *myObjectGenericType) SendResponse(data interface{}, operationType dt.OperationType) error {
-	r := &dt.TestListResponse{
+func (ft *flightGenericType) SendResponse(data interface{}, operationType dt.OperationType) error {
+	r := &dt.FlightListResponse{
 		OperationType: operationType,
 	}
 
 	if data != nil {
-		r.Object = data.(*dt.MyObject)
+		r.Flight = data.(*dt.Flight)
 	}
 
 	return ft.stream.Send(r)
 }
 
-// newTestRepository instantiates a new testRepository and returns it as a domain.TestRepository
-func newTestRepository(d *database.Db) *testRepository {
-	const testCollectionName string = "test"
-	c := dbDomain.NewMongoCollection(d.Database, testCollectionName)
+// newFlightRepository instantiates a new flightRepository and returns it as a domain.FlightRepository
+func newFlightRepository(d *database.Db) *flightRepository {
+	const flightsCollectionName string = "flights"
+	c := dbDomain.NewMongoCollection(d.Database, flightsCollectionName)
 
-	return &testRepository{
-		c: c,
+	return &flightRepository{
+		c:  c,
+		sm: database.NewSubscriptionsMux(c),
 	}
 }
 
-func (tr *testRepository) TestEndpoint(ctx context.Context, request string) (string, error) {
-	pp.Println("testtest")
-
-	request = request + " YES "
-
-	return request, nil
-}
-
-func (tr *testRepository) ListMyObjects(req *dt.TestListRequest, stream dt.TestService_TestListServer) error {
-	mogt := &myObjectGenericType{
+func (fr *flightRepository) FlightList(req *dt.FlightListRequest, stream dt.FlightService_FlightListServer) error {
+	mogt := &flightGenericType{
 		stream: stream,
 	}
 
-	return tr.sm.ServeSubscription(stream.Context(), mogt, tr.c, tr.getFilterPipeline(req, []string{}))
+	return fr.sm.ServeSubscription(stream.Context(), mogt, fr.c, fr.getFilterPipeline(req, []string{}))
 }
 
-func (tr *testRepository) getFilterPipeline(req *dt.TestListRequest, fields []string) mongo.Pipeline {
+func (fr *flightRepository) getFilterPipeline(req *dt.FlightListRequest, fields []string) mongo.Pipeline {
 	pipeline := mongo.Pipeline{
 		bson.D{{
-			Key: "$match", Value: tr.createMatchConditions(req),
+			Key: "$match", Value: fr.createMatchConditions(req),
 		}},
 	}
 
@@ -103,7 +97,7 @@ func (tr *testRepository) getFilterPipeline(req *dt.TestListRequest, fields []st
 	return pipeline
 }
 
-func (tr *testRepository) createMatchConditions(req *dt.TestListRequest) primitive.D {
+func (tr *flightRepository) createMatchConditions(req *dt.FlightListRequest) primitive.D {
 	matchConditions := bson.D{}
 
 	if req.GetQuery() != "" {
@@ -213,9 +207,6 @@ func getComparisonStatement(f *dt.FilterParam) primitive.E {
 	field := f.GetField()
 	operator := f.GetOperator()
 	value := f.GetValue()
-	if field == "flight_no" {
-		value = service.FormatFlightNo(value)
-	}
 	if operator == "eq" && (strings.HasSuffix(field, "_id") || strings.HasSuffix(field, "alrn")) {
 		return bson.E{Key: field, Value: value}
 	}

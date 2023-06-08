@@ -15,7 +15,7 @@ type serviceKey string
 
 const (
 	// FlightService represents the unique identifier for the RuleEngine service.
-	TestService serviceKey = "BOOKING"
+	BookingService serviceKey = "BOOKING"
 )
 
 type service struct {
@@ -25,7 +25,7 @@ type service struct {
 }
 
 var services = map[serviceKey]service{
-	TestService: {
+	BookingService: {
 		name: "booking",
 		url:  "localhost:50052",
 		repo: "booking-api",

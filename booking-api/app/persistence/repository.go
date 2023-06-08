@@ -6,7 +6,8 @@ import (
 
 // Repositories contains a reference to each repository.
 type Repositories struct {
-	TestRepository *testRepository
+	FlightRepository *flightRepository
+	UserRepository   *userRepository
 }
 
 // NewRepositories returns repositories instantiated with a database connection
@@ -14,6 +15,7 @@ func NewRepositories(d *database.Db) *Repositories {
 	// clock := clock.New()
 
 	return &Repositories{
-		TestRepository: newTestRepository(d),
+		FlightRepository: newFlightRepository(d),
+		UserRepository:   newUserRepository(d),
 	}
 }

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package test;
+package flight;
 
 import "google/protobuf/timestamp.proto";
 import "operation.proto";
@@ -13,20 +13,16 @@ enum ViewSortOrder {
     DESC = 2;
 }
 
-message MyObject {
+message Flight {
     string id = 1;
-    string name = 2;
-    google.protobuf.Timestamp date = 3;
+    string departure = 2;
+    google.protobuf.Timestamp departure_time = 3;
+    string arrival = 4;
+    google.protobuf.Timestamp arrival_time = 5;
+    int32 bookable_seats = 6;
 }
 
-message TestEndpointRequest {
-    string request = 1;
-}
-message TestEndpointResponse {
-    string response = 1;
-}
-
-message TestListRequest {
+message FlightListRequest {
     // limit is used to only show a specified number of documents
     int32 limit = 1;
     // offset is used to skip a specified number of documents
@@ -39,9 +35,9 @@ message TestListRequest {
     repeated FilterParam filter = 5;
 }
 
-message TestListResponse {
-    MyObject object = 1;
-    repeated MyObject objects = 2;
+message FlightListResponse {
+    Flight flight = 1;
+    repeated Flight flights = 2;
     // operation_type for current message
     operation.OperationType operation_type = 3;
 }
@@ -67,7 +63,6 @@ message FilterParam {
     string value = 4;
 }
 
-service TestService {
-    rpc TestEndpoint(TestEndpointRequest) returns (TestEndpointResponse);
-    rpc TestList(TestListRequest) returns (stream TestListResponse);
+service FlightService {
+    rpc FlightList(FlightListRequest) returns (stream FlightListResponse);
 }

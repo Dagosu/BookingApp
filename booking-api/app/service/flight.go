@@ -11,9 +11,7 @@ var (
 
 func IsTimeField(field string) bool {
 	timeSubfields := []string{
-		"created_at", "updated_at", "deleted_at", "date_", "valid_", "operations.", "est_or_sct", "flight_time", "tow_time",
-		"roll_off_", "checkin.start", "checkin.end", "start", "end", "datetime", "expires_at", "triggered_at", "act_", "sct_",
-		"act_or_est_or_sct",
+		"departure_time", "arrival_time",
 	}
 
 	for _, sf := range timeSubfields {

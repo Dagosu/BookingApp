@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	op "github.com/Dagosu/BookingAp/gohelpers/operations"
 	dt "github.com/Dagosu/BookingApp/datatypes"
+	op "github.com/Dagosu/BookingApp/gohelpers/operations"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 

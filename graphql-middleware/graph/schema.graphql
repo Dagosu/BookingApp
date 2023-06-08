@@ -72,31 +72,35 @@ type Timestamp {
 	nanos: Int
 }
 
-type MyObject {
-  id: ID!
-  name: String
-  date: Timestamp
+type Flight {
+  	id: ID!
+  	departure: String
+  	departureTime: Timestamp
+	arrival: String
+	arrivalTime: Timestamp
+	bookableSeats: Int
 }
 
 """
 Query
 """
-input TestEndpointInput {
-  request: String
+input CheckCredentialsInput {
+	email: String
+	password: String
 }
 
-type TestEndpointResponse {
-  response: String
+type CheckCredentialsResponse {
+	authorized: Boolean
 }
 
 type Query {
-  testEndpoint(in: TestEndpointInput!): TestEndpointResponse!
+  	checkCredentials(in: CheckCredentialsInput!): CheckCredentialsResponse!
 }
 
 """
 Subscription
 """
-input TestListInput {
+input FlightListInput {
 	limit: Int
 	offset: Int
 	query: String
@@ -104,11 +108,11 @@ input TestListInput {
 	filter: [FilterParamInput!]
 }
 
-type TestListResponse {
+type FlightListResponse {
 	operationType: OperationType
-	objects: [MyObject!]
+	flights: [Flight!]
 }
 
 type Subscription {
-  testList(in: TestListInput!): TestListResponse!
+  	flightList(in: FlightListInput!): FlightListResponse!
 }

@@ -6,12 +6,14 @@ import (
 
 // Usecases contains all usecases used in the delivery layers.
 type Usecases struct {
-	TestUsecase *testUsecase
+	FlightUsecase *flightUsecase
+	UserUsecase   *userUsecase
 }
 
 // NewUsecases returns usecases instantiated with required repositories
 func NewUsecases(r *persistence.Repositories) *Usecases {
 	return &Usecases{
-		TestUsecase: newTestUsecase(r.TestRepository),
+		FlightUsecase: newFlightUsecase(r.FlightRepository),
+		UserUsecase:   newuserUsecase(r.UserRepository),
 	}
 }

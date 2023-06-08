@@ -6,20 +6,19 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	graph "github.com/Dagosu/BookingApp/graphql-middleware/graph/generated"
 	"github.com/Dagosu/BookingApp/graphql-middleware/graph/model"
 )
 
-// TestEndpoint is the resolver for the testEndpoint field.
-func (r *queryResolver) TestEndpoint(ctx context.Context, in model.TestEndpointInput) (*model.TestEndpointResponse, error) {
-	return r.resolveTestEndpoint(ctx, in)
+// CheckCredentials is the resolver for the checkCredentials field.
+func (r *queryResolver) CheckCredentials(ctx context.Context, in model.CheckCredentialsInput) (*model.CheckCredentialsResponse, error) {
+	return r.resolveCheckCredentials(ctx, in)
 }
 
-// TestList is the resolver for the testList field.
-func (r *subscriptionResolver) TestList(ctx context.Context, in model.TestListInput) (<-chan *model.TestListResponse, error) {
-	panic(fmt.Errorf("not implemented: TestList - testList"))
+// FlightList is the resolver for the flightList field.
+func (r *subscriptionResolver) FlightList(ctx context.Context, in model.FlightListInput) (<-chan *model.FlightListResponse, error) {
+	return r.resolveFlightList(ctx, in)
 }
 
 // Query returns graph.QueryResolver implementation.

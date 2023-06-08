@@ -5,15 +5,18 @@ import (
 	"github.com/Dagosu/BookingApp/graphql-middleware/graph/model"
 )
 
-func ParseMyObject(o *dt.MyObject) *model.MyObject {
-	if o == nil {
+func ParseFlight(f *dt.Flight) *model.Flight {
+	if f == nil {
 		return nil
 	}
 
-	return &model.MyObject{
-		ID:   o.GetId(),
-		Name: StrRefer(o.GetName()),
-		Date: ParsePbTimestamp(o.GetDate()),
+	return &model.Flight{
+		ID:            f.GetId(),
+		Departure:     StrRefer(f.GetDeparture()),
+		DepartureTime: ParsePbTimestamp(f.GetDepartureTime()),
+		Arrival:       StrRefer(f.GetArrival()),
+		ArrivalTime:   ParsePbTimestamp(f.GetArrivalTime()),
+		BookableSeats: IntRefer(f.GetBookableSeats()),
 	}
 }
 
@@ -47,15 +50,15 @@ func ParseFilter(in []*model.FilterParamInput) []*dt.FilterParam {
 	return out
 }
 
-func ObjectsStreamToChan(c chan *model.TestListResponse, o *dt.TestListResponse, myObjects *[]*model.MyObject, ready *bool) {
+func FlightStreamToChan(c chan *model.FlightListResponse, o *dt.FlightListResponse, flights *[]*model.Flight, ready *bool) {
 	// log.Println("FlightList received msg, pushing to channel", f)
 
 	opt := model.OperationType(o.OperationType.String())
 
-	myO := ParseMyObject(o.Object)
+	fl := ParseFlight(o.Flight)
 	if !*ready {
-		if myO != nil {
-			*myObjects = append(*myObjects, myO)
+		if fl != nil {
+			*flights = append(*flights, fl)
 		}
 
 		*ready = o.OperationType == dt.OperationType_READY
@@ -63,15 +66,15 @@ func ObjectsStreamToChan(c chan *model.TestListResponse, o *dt.TestListResponse,
 		if *ready {
 			optInsert := model.OperationTypeInsert
 
-			c <- &model.TestListResponse{
+			c <- &model.FlightListResponse{
 				OperationType: &optInsert,
-				Objects:       *myObjects,
+				Flights:       *flights,
 			}
 
-			*myObjects = []*model.MyObject{}
+			*flights = []*model.Flight{}
 
 			// send a separate READY message
-			c <- &model.TestListResponse{
+			c <- &model.FlightListResponse{
 				OperationType: &opt,
 			}
 		}
@@ -79,10 +82,10 @@ func ObjectsStreamToChan(c chan *model.TestListResponse, o *dt.TestListResponse,
 		return
 	}
 
-	myObjectList := []*model.MyObject{myO}
+	flightsList := []*model.Flight{fl}
 
-	c <- &model.TestListResponse{
+	c <- &model.FlightListResponse{
 		OperationType: &opt,
-		Objects:       myObjectList,
+		Flights:       flightsList,
 	}
 }

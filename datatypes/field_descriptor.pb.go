@@ -28,9 +28,9 @@ type EnumValue struct {
 	unknownFields protoimpl.UnknownFields
 
 	// label of the value eg: I (International)
-	Label string `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`
+	Label string `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty" bson:"label,omitempty"`
 	// value eg: I
-	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty" bson:"value,omitempty"`
 }
 
 func (x *EnumValue) Reset() {
@@ -86,57 +86,57 @@ type FieldDescriptor struct {
 	unknownFields protoimpl.UnknownFields
 
 	// id is the field descriptor's unique identifier randomly generated.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"_id,omitempty" bson:"_id,omitempty"`
 	// created_at is the time when the document was first inserted into the
 	// database.
-	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty" bson:"created_at,omitempty"`
 	// updated_at is the time when document was last updated.
-	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 	// view_types is data_view.proto type correspondent. It can be anything, but
 	// if used in a multi service app, the recommendation is to prefix the type
 	// with the service name eg: 'flight::flights' or 'mdm::airlines'
-	ViewTypes []string `protobuf:"bytes,4,rep,name=view_types,json=viewTypes,proto3" json:"view_types,omitempty"`
+	ViewTypes []string `protobuf:"bytes,4,rep,name=view_types,json=viewTypes,proto3" json:"view_types,omitempty" bson:"view_types,omitempty"`
 	// name is the flat identifier field descriptor's name. This is the identifier
 	// that services should use when filtering fields / displaying permissions per
 	// field / asking for a field's descriptor / etc should be unique per
 	// view_type (no two field descriptors with the same name for the same
 	// view_type) Eg: "pax_boarded"
-	Name string `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty" bson:"name,omitempty"`
 	// label is the human readable descriptor. Usually displayed as labels in
 	// forms, table headings, etc Eg: "Pax Brd"
-	Label string `protobuf:"bytes,6,opt,name=label,proto3" json:"label,omitempty"`
+	Label string `protobuf:"bytes,6,opt,name=label,proto3" json:"label,omitempty" bson:"label,omitempty"`
 	// description contains the human readable description.
 	// Eg: "Passengers boarded"
-	Description string `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"`
+	Description string `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty" bson:"description,omitempty"`
 	// path is the "dot" notation path of field in documents (of type indicated by
 	// view_type). Eg: "pax.boarded"
-	Path string `protobuf:"bytes,8,opt,name=path,proto3" json:"path,omitempty"`
+	Path string `protobuf:"bytes,8,opt,name=path,proto3" json:"path,omitempty" bson:"path,omitempty"`
 	// type of the field (used for rendering / validation). If a primitive
 	// type is not sufficient (the field represents for example a structure),
 	// "CUSTOM" `type` + `type_hint` should be used
-	Type FieldType `protobuf:"varint,9,opt,name=type,proto3,enum=field_type.FieldType" json:"type,omitempty"`
+	Type FieldType `protobuf:"varint,9,opt,name=type,proto3,enum=field_type.FieldType" json:"type,omitempty" bson:"type,omitempty"`
 	// type_hint is where an extension to type should be placed.
 	// eg: "multi_line"
-	TypeHint string `protobuf:"bytes,10,opt,name=type_hint,json=typeHint,proto3" json:"type_hint,omitempty"`
+	TypeHint string `protobuf:"bytes,10,opt,name=type_hint,json=typeHint,proto3" json:"type_hint,omitempty" bson:"type_hint,omitempty"`
 	// da_name is the field name used in DA previous AODB implementation. It
 	// serves to provide insight and mapping when parsing data. Eg: "NOSE"
-	DaName string `protobuf:"bytes,11,opt,name=da_name,json=daName,proto3" json:"da_name,omitempty"`
+	DaName string `protobuf:"bytes,11,opt,name=da_name,json=daName,proto3" json:"da_name,omitempty" bson:"da_name,omitempty"`
 	// format is helpful (mostly for datetime/timestamp) to have a format how the
 	// value of the field should be displayed
 	// eg: "dd/mm/yyyy"
-	Format string `protobuf:"bytes,12,opt,name=format,proto3" json:"format,omitempty"`
+	Format string `protobuf:"bytes,12,opt,name=format,proto3" json:"format,omitempty" bson:"format,omitempty"`
 	// sources from where the field values can be updated
-	Sources []string `protobuf:"bytes,13,rep,name=sources,proto3" json:"sources,omitempty"`
+	Sources []string `protobuf:"bytes,13,rep,name=sources,proto3" json:"sources,omitempty" bson:"sources,omitempty"`
 	// alrn of the field descriptor
-	Alrn string `protobuf:"bytes,14,opt,name=alrn,proto3" json:"alrn,omitempty"`
+	Alrn string `protobuf:"bytes,14,opt,name=alrn,proto3" json:"alrn,omitempty" bson:"alrn,omitempty"`
 	// field_type - is the actual field type
-	FieldType string `protobuf:"bytes,15,opt,name=field_type,json=fieldType,proto3" json:"field_type,omitempty"`
+	FieldType string `protobuf:"bytes,15,opt,name=field_type,json=fieldType,proto3" json:"field_type,omitempty" bson:"field_type,omitempty"`
 	// enum_values - for type enum
-	EnumValues []*EnumValue `protobuf:"bytes,16,rep,name=enum_values,json=enumValues,proto3" json:"enum_values,omitempty"`
+	EnumValues []*EnumValue `protobuf:"bytes,16,rep,name=enum_values,json=enumValues,proto3" json:"enum_values,omitempty" bson:"enum_values,omitempty"`
 	// deleted_at is time when the record was marked as deleted
-	DeletedAt *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`
+	DeletedAt *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty" bson:"deleted_at,omitempty"`
 	// deleted_by is the user that deleted the record
-	DeletedBy string `protobuf:"bytes,18,opt,name=deleted_by,json=deletedBy,proto3" json:"deleted_by,omitempty"`
+	DeletedBy string `protobuf:"bytes,18,opt,name=deleted_by,json=deletedBy,proto3" json:"deleted_by,omitempty" bson:"deleted_by,omitempty"`
 }
 
 func (x *FieldDescriptor) Reset() {

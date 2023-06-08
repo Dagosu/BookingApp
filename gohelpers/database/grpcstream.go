@@ -10,6 +10,7 @@ import (
 	dt "github.com/Dagosu/BookingApp/datatypes"
 	"github.com/Dagosu/BookingApp/gohelpers/database/domain"
 	op "github.com/Dagosu/BookingApp/gohelpers/operations"
+	"github.com/k0kubun/pp"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -135,15 +136,22 @@ func (s *subscription) fakeUpdates(c domain.MongoCollection, f []bson.D) error {
 }
 
 func (s *subscription) fetchDocumentsAndServe(c domain.MongoCollection, f []bson.D) error {
+	pp.Println("aaaa: ", f)
+
 	cursor, err := s.getQueryCursor(c, f)
 	if err != nil {
 		return status.Errorf(codes.Internal, fmt.Sprintf("Unknown internal error: %v", err))
 	}
 	defer cursor.Close(s.ctx)
-
+	pp.Println("ccccc")
 	for cursor.Next(s.ctx) {
+		pp.Println("bbbbbb")
+
 		data := s.gt.New()
 		err := cursor.Decode(data)
+
+		pp.Println(data)
+
 		if err != nil {
 			// log.Println("Document error, cannot cursor.Decode, continuing:", fmt.Sprintf("%+v", err), cursor.Current())
 			s.gt.SendResponse(nil, dt.OperationType_ERROR)
@@ -371,6 +379,8 @@ func (sm *SubscriptionsMux) ServeSubscription(ctx context.Context, gt GenericTyp
 		// forward hooks to subscription
 		s.HookBeforeResponse = gtWithHooks.HookBeforeResponse
 	}
+
+	pp.Println(f)
 
 	// add subscription to SubscriptionMux
 	sm.add(s)

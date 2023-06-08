@@ -45,27 +45,30 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	MyObject struct {
-		Date func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+	CheckCredentialsResponse struct {
+		Authorized func(childComplexity int) int
+	}
+
+	Flight struct {
+		Arrival       func(childComplexity int) int
+		ArrivalTime   func(childComplexity int) int
+		BookableSeats func(childComplexity int) int
+		Departure     func(childComplexity int) int
+		DepartureTime func(childComplexity int) int
+		ID            func(childComplexity int) int
+	}
+
+	FlightListResponse struct {
+		Flights       func(childComplexity int) int
+		OperationType func(childComplexity int) int
 	}
 
 	Query struct {
-		TestEndpoint func(childComplexity int, in model.TestEndpointInput) int
+		CheckCredentials func(childComplexity int, in model.CheckCredentialsInput) int
 	}
 
 	Subscription struct {
-		TestList func(childComplexity int, in model.TestListInput) int
-	}
-
-	TestEndpointResponse struct {
-		Response func(childComplexity int) int
-	}
-
-	TestListResponse struct {
-		Objects       func(childComplexity int) int
-		OperationType func(childComplexity int) int
+		FlightList func(childComplexity int, in model.FlightListInput) int
 	}
 
 	Timestamp struct {
@@ -75,10 +78,10 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	TestEndpoint(ctx context.Context, in model.TestEndpointInput) (*model.TestEndpointResponse, error)
+	CheckCredentials(ctx context.Context, in model.CheckCredentialsInput) (*model.CheckCredentialsResponse, error)
 }
 type SubscriptionResolver interface {
-	TestList(ctx context.Context, in model.TestListInput) (<-chan *model.TestListResponse, error)
+	FlightList(ctx context.Context, in model.FlightListInput) (<-chan *model.FlightListResponse, error)
 }
 
 type executableSchema struct {
@@ -96,71 +99,92 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "MyObject.date":
-		if e.complexity.MyObject.Date == nil {
+	case "CheckCredentialsResponse.authorized":
+		if e.complexity.CheckCredentialsResponse.Authorized == nil {
 			break
 		}
 
-		return e.complexity.MyObject.Date(childComplexity), true
+		return e.complexity.CheckCredentialsResponse.Authorized(childComplexity), true
 
-	case "MyObject.id":
-		if e.complexity.MyObject.ID == nil {
+	case "Flight.arrival":
+		if e.complexity.Flight.Arrival == nil {
 			break
 		}
 
-		return e.complexity.MyObject.ID(childComplexity), true
+		return e.complexity.Flight.Arrival(childComplexity), true
 
-	case "MyObject.name":
-		if e.complexity.MyObject.Name == nil {
+	case "Flight.arrivalTime":
+		if e.complexity.Flight.ArrivalTime == nil {
 			break
 		}
 
-		return e.complexity.MyObject.Name(childComplexity), true
+		return e.complexity.Flight.ArrivalTime(childComplexity), true
 
-	case "Query.testEndpoint":
-		if e.complexity.Query.TestEndpoint == nil {
+	case "Flight.bookableSeats":
+		if e.complexity.Flight.BookableSeats == nil {
 			break
 		}
 
-		args, err := ec.field_Query_testEndpoint_args(context.TODO(), rawArgs)
+		return e.complexity.Flight.BookableSeats(childComplexity), true
+
+	case "Flight.departure":
+		if e.complexity.Flight.Departure == nil {
+			break
+		}
+
+		return e.complexity.Flight.Departure(childComplexity), true
+
+	case "Flight.departureTime":
+		if e.complexity.Flight.DepartureTime == nil {
+			break
+		}
+
+		return e.complexity.Flight.DepartureTime(childComplexity), true
+
+	case "Flight.id":
+		if e.complexity.Flight.ID == nil {
+			break
+		}
+
+		return e.complexity.Flight.ID(childComplexity), true
+
+	case "FlightListResponse.flights":
+		if e.complexity.FlightListResponse.Flights == nil {
+			break
+		}
+
+		return e.complexity.FlightListResponse.Flights(childComplexity), true
+
+	case "FlightListResponse.operationType":
+		if e.complexity.FlightListResponse.OperationType == nil {
+			break
+		}
+
+		return e.complexity.FlightListResponse.OperationType(childComplexity), true
+
+	case "Query.checkCredentials":
+		if e.complexity.Query.CheckCredentials == nil {
+			break
+		}
+
+		args, err := ec.field_Query_checkCredentials_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.TestEndpoint(childComplexity, args["in"].(model.TestEndpointInput)), true
+		return e.complexity.Query.CheckCredentials(childComplexity, args["in"].(model.CheckCredentialsInput)), true
 
-	case "Subscription.testList":
-		if e.complexity.Subscription.TestList == nil {
+	case "Subscription.flightList":
+		if e.complexity.Subscription.FlightList == nil {
 			break
 		}
 
-		args, err := ec.field_Subscription_testList_args(context.TODO(), rawArgs)
+		args, err := ec.field_Subscription_flightList_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Subscription.TestList(childComplexity, args["in"].(model.TestListInput)), true
-
-	case "TestEndpointResponse.response":
-		if e.complexity.TestEndpointResponse.Response == nil {
-			break
-		}
-
-		return e.complexity.TestEndpointResponse.Response(childComplexity), true
-
-	case "TestListResponse.objects":
-		if e.complexity.TestListResponse.Objects == nil {
-			break
-		}
-
-		return e.complexity.TestListResponse.Objects(childComplexity), true
-
-	case "TestListResponse.operationType":
-		if e.complexity.TestListResponse.OperationType == nil {
-			break
-		}
-
-		return e.complexity.TestListResponse.OperationType(childComplexity), true
+		return e.complexity.Subscription.FlightList(childComplexity, args["in"].(model.FlightListInput)), true
 
 	case "Timestamp.nanos":
 		if e.complexity.Timestamp.Nanos == nil {
@@ -184,10 +208,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCheckCredentialsInput,
 		ec.unmarshalInputFilterParamInput,
+		ec.unmarshalInputFlightListInput,
 		ec.unmarshalInputSortParamInput,
-		ec.unmarshalInputTestEndpointInput,
-		ec.unmarshalInputTestListInput,
 	)
 	first := true
 
@@ -324,31 +348,35 @@ type Timestamp {
 	nanos: Int
 }
 
-type MyObject {
-  id: ID!
-  name: String
-  date: Timestamp
+type Flight {
+  	id: ID!
+  	departure: String
+  	departureTime: Timestamp
+	arrival: String
+	arrivalTime: Timestamp
+	bookableSeats: Int
 }
 
 """
 Query
 """
-input TestEndpointInput {
-  request: String
+input CheckCredentialsInput {
+	email: String
+	password: String
 }
 
-type TestEndpointResponse {
-  response: String
+type CheckCredentialsResponse {
+	authorized: Boolean
 }
 
 type Query {
-  testEndpoint(in: TestEndpointInput!): TestEndpointResponse!
+  	checkCredentials(in: CheckCredentialsInput!): CheckCredentialsResponse!
 }
 
 """
 Subscription
 """
-input TestListInput {
+input FlightListInput {
 	limit: Int
 	offset: Int
 	query: String
@@ -356,13 +384,13 @@ input TestListInput {
 	filter: [FilterParamInput!]
 }
 
-type TestListResponse {
+type FlightListResponse {
 	operationType: OperationType
-	objects: [MyObject!]
+	flights: [Flight!]
 }
 
 type Subscription {
-  testList(in: TestListInput!): TestListResponse!
+  	flightList(in: FlightListInput!): FlightListResponse!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -386,13 +414,13 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_testEndpoint_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_checkCredentials_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TestEndpointInput
+	var arg0 model.CheckCredentialsInput
 	if tmp, ok := rawArgs["in"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
-		arg0, err = ec.unmarshalNTestEndpointInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestEndpointInput(ctx, tmp)
+		arg0, err = ec.unmarshalNCheckCredentialsInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckCredentialsInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -401,13 +429,13 @@ func (ec *executionContext) field_Query_testEndpoint_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_Subscription_testList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Subscription_flightList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TestListInput
+	var arg0 model.FlightListInput
 	if tmp, ok := rawArgs["in"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
-		arg0, err = ec.unmarshalNTestListInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestListInput(ctx, tmp)
+		arg0, err = ec.unmarshalNFlightListInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightListInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -454,8 +482,49 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _MyObject_id(ctx context.Context, field graphql.CollectedField, obj *model.MyObject) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MyObject_id(ctx, field)
+func (ec *executionContext) _CheckCredentialsResponse_authorized(ctx context.Context, field graphql.CollectedField, obj *model.CheckCredentialsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CheckCredentialsResponse_authorized(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Authorized, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CheckCredentialsResponse_authorized(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CheckCredentialsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Flight_id(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -485,9 +554,9 @@ func (ec *executionContext) _MyObject_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MyObject_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Flight_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "MyObject",
+		Object:     "Flight",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -498,8 +567,8 @@ func (ec *executionContext) fieldContext_MyObject_id(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _MyObject_name(ctx context.Context, field graphql.CollectedField, obj *model.MyObject) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MyObject_name(ctx, field)
+func (ec *executionContext) _Flight_departure(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_departure(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -512,7 +581,7 @@ func (ec *executionContext) _MyObject_name(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.Departure, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -526,9 +595,9 @@ func (ec *executionContext) _MyObject_name(ctx context.Context, field graphql.Co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MyObject_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Flight_departure(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "MyObject",
+		Object:     "Flight",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -539,8 +608,8 @@ func (ec *executionContext) fieldContext_MyObject_name(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _MyObject_date(ctx context.Context, field graphql.CollectedField, obj *model.MyObject) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MyObject_date(ctx, field)
+func (ec *executionContext) _Flight_departureTime(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_departureTime(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -553,7 +622,7 @@ func (ec *executionContext) _MyObject_date(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Date, nil
+		return obj.DepartureTime, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -567,9 +636,9 @@ func (ec *executionContext) _MyObject_date(ctx context.Context, field graphql.Co
 	return ec.marshalOTimestamp2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTimestamp(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MyObject_date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Flight_departureTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "MyObject",
+		Object:     "Flight",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -586,8 +655,8 @@ func (ec *executionContext) fieldContext_MyObject_date(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_testEndpoint(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_testEndpoint(ctx, field)
+func (ec *executionContext) _Flight_arrival(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_arrival(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -600,7 +669,232 @@ func (ec *executionContext) _Query_testEndpoint(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TestEndpoint(rctx, fc.Args["in"].(model.TestEndpointInput))
+		return obj.Arrival, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Flight_arrival(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Flight",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Flight_arrivalTime(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_arrivalTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ArrivalTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Timestamp)
+	fc.Result = res
+	return ec.marshalOTimestamp2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Flight_arrivalTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Flight",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "seconds":
+				return ec.fieldContext_Timestamp_seconds(ctx, field)
+			case "nanos":
+				return ec.fieldContext_Timestamp_nanos(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Timestamp", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Flight_bookableSeats(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_bookableSeats(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BookableSeats, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Flight_bookableSeats(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Flight",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FlightListResponse_operationType(ctx context.Context, field graphql.CollectedField, obj *model.FlightListResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FlightListResponse_operationType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OperationType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.OperationType)
+	fc.Result = res
+	return ec.marshalOOperationType2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐOperationType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FlightListResponse_operationType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FlightListResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type OperationType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FlightListResponse_flights(ctx context.Context, field graphql.CollectedField, obj *model.FlightListResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FlightListResponse_flights(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Flights, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FlightListResponse_flights(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FlightListResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_checkCredentials(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_checkCredentials(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CheckCredentials(rctx, fc.Args["in"].(model.CheckCredentialsInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -612,12 +906,12 @@ func (ec *executionContext) _Query_testEndpoint(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.TestEndpointResponse)
+	res := resTmp.(*model.CheckCredentialsResponse)
 	fc.Result = res
-	return ec.marshalNTestEndpointResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestEndpointResponse(ctx, field.Selections, res)
+	return ec.marshalNCheckCredentialsResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckCredentialsResponse(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_testEndpoint(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_checkCredentials(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -625,10 +919,10 @@ func (ec *executionContext) fieldContext_Query_testEndpoint(ctx context.Context,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "response":
-				return ec.fieldContext_TestEndpointResponse_response(ctx, field)
+			case "authorized":
+				return ec.fieldContext_CheckCredentialsResponse_authorized(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TestEndpointResponse", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CheckCredentialsResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -638,7 +932,7 @@ func (ec *executionContext) fieldContext_Query_testEndpoint(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_testEndpoint_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_checkCredentials_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -774,8 +1068,8 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Subscription_testList(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	fc, err := ec.fieldContext_Subscription_testList(ctx, field)
+func (ec *executionContext) _Subscription_flightList(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_flightList(ctx, field)
 	if err != nil {
 		return nil
 	}
@@ -788,7 +1082,7 @@ func (ec *executionContext) _Subscription_testList(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().TestList(rctx, fc.Args["in"].(model.TestListInput))
+		return ec.resolvers.Subscription().FlightList(rctx, fc.Args["in"].(model.FlightListInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -802,7 +1096,7 @@ func (ec *executionContext) _Subscription_testList(ctx context.Context, field gr
 	}
 	return func(ctx context.Context) graphql.Marshaler {
 		select {
-		case res, ok := <-resTmp.(<-chan *model.TestListResponse):
+		case res, ok := <-resTmp.(<-chan *model.FlightListResponse):
 			if !ok {
 				return nil
 			}
@@ -810,7 +1104,7 @@ func (ec *executionContext) _Subscription_testList(ctx context.Context, field gr
 				w.Write([]byte{'{'})
 				graphql.MarshalString(field.Alias).MarshalGQL(w)
 				w.Write([]byte{':'})
-				ec.marshalNTestListResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestListResponse(ctx, field.Selections, res).MarshalGQL(w)
+				ec.marshalNFlightListResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightListResponse(ctx, field.Selections, res).MarshalGQL(w)
 				w.Write([]byte{'}'})
 			})
 		case <-ctx.Done():
@@ -819,7 +1113,7 @@ func (ec *executionContext) _Subscription_testList(ctx context.Context, field gr
 	}
 }
 
-func (ec *executionContext) fieldContext_Subscription_testList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Subscription_flightList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Subscription",
 		Field:      field,
@@ -828,11 +1122,11 @@ func (ec *executionContext) fieldContext_Subscription_testList(ctx context.Conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "operationType":
-				return ec.fieldContext_TestListResponse_operationType(ctx, field)
-			case "objects":
-				return ec.fieldContext_TestListResponse_objects(ctx, field)
+				return ec.fieldContext_FlightListResponse_operationType(ctx, field)
+			case "flights":
+				return ec.fieldContext_FlightListResponse_flights(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TestListResponse", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type FlightListResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -842,140 +1136,9 @@ func (ec *executionContext) fieldContext_Subscription_testList(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Subscription_testList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Subscription_flightList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TestEndpointResponse_response(ctx context.Context, field graphql.CollectedField, obj *model.TestEndpointResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestEndpointResponse_response(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Response, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestEndpointResponse_response(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestEndpointResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TestListResponse_operationType(ctx context.Context, field graphql.CollectedField, obj *model.TestListResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestListResponse_operationType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.OperationType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.OperationType)
-	fc.Result = res
-	return ec.marshalOOperationType2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐOperationType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestListResponse_operationType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestListResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type OperationType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TestListResponse_objects(ctx context.Context, field graphql.CollectedField, obj *model.TestListResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestListResponse_objects(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Objects, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.MyObject)
-	fc.Result = res
-	return ec.marshalOMyObject2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐMyObjectᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestListResponse_objects(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestListResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_MyObject_id(ctx, field)
-			case "name":
-				return ec.fieldContext_MyObject_name(ctx, field)
-			case "date":
-				return ec.fieldContext_MyObject_date(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type MyObject", field.Name)
-		},
 	}
 	return fc, nil
 }
@@ -2835,6 +2998,44 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCheckCredentialsInput(ctx context.Context, obj interface{}) (model.CheckCredentialsInput, error) {
+	var it model.CheckCredentialsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFilterParamInput(ctx context.Context, obj interface{}) (model.FilterParamInput, error) {
 	var it model.FilterParamInput
 	asMap := map[string]interface{}{}
@@ -2891,75 +3092,8 @@ func (ec *executionContext) unmarshalInputFilterParamInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSortParamInput(ctx context.Context, obj interface{}) (model.SortParamInput, error) {
-	var it model.SortParamInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"field", "order"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "field":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Field = data
-		case "order":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
-			data, err := ec.unmarshalOViewSortOrder2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐViewSortOrder(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Order = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputTestEndpointInput(ctx context.Context, obj interface{}) (model.TestEndpointInput, error) {
-	var it model.TestEndpointInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"request"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "request":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("request"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Request = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputTestListInput(ctx context.Context, obj interface{}) (model.TestListInput, error) {
-	var it model.TestListInput
+func (ec *executionContext) unmarshalInputFlightListInput(ctx context.Context, obj interface{}) (model.FlightListInput, error) {
+	var it model.FlightListInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -3023,6 +3157,44 @@ func (ec *executionContext) unmarshalInputTestListInput(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSortParamInput(ctx context.Context, obj interface{}) (model.SortParamInput, error) {
+	var it model.SortParamInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "order"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "order":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
+			data, err := ec.unmarshalOViewSortOrder2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐViewSortOrder(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Order = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3031,30 +3203,96 @@ func (ec *executionContext) unmarshalInputTestListInput(ctx context.Context, obj
 
 // region    **************************** object.gotpl ****************************
 
-var myObjectImplementors = []string{"MyObject"}
+var checkCredentialsResponseImplementors = []string{"CheckCredentialsResponse"}
 
-func (ec *executionContext) _MyObject(ctx context.Context, sel ast.SelectionSet, obj *model.MyObject) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, myObjectImplementors)
+func (ec *executionContext) _CheckCredentialsResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CheckCredentialsResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, checkCredentialsResponseImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("MyObject")
+			out.Values[i] = graphql.MarshalString("CheckCredentialsResponse")
+		case "authorized":
+
+			out.Values[i] = ec._CheckCredentialsResponse_authorized(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var flightImplementors = []string{"Flight"}
+
+func (ec *executionContext) _Flight(ctx context.Context, sel ast.SelectionSet, obj *model.Flight) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, flightImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Flight")
 		case "id":
 
-			out.Values[i] = ec._MyObject_id(ctx, field, obj)
+			out.Values[i] = ec._Flight_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "name":
+		case "departure":
 
-			out.Values[i] = ec._MyObject_name(ctx, field, obj)
+			out.Values[i] = ec._Flight_departure(ctx, field, obj)
 
-		case "date":
+		case "departureTime":
 
-			out.Values[i] = ec._MyObject_date(ctx, field, obj)
+			out.Values[i] = ec._Flight_departureTime(ctx, field, obj)
+
+		case "arrival":
+
+			out.Values[i] = ec._Flight_arrival(ctx, field, obj)
+
+		case "arrivalTime":
+
+			out.Values[i] = ec._Flight_arrivalTime(ctx, field, obj)
+
+		case "bookableSeats":
+
+			out.Values[i] = ec._Flight_bookableSeats(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var flightListResponseImplementors = []string{"FlightListResponse"}
+
+func (ec *executionContext) _FlightListResponse(ctx context.Context, sel ast.SelectionSet, obj *model.FlightListResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, flightListResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FlightListResponse")
+		case "operationType":
+
+			out.Values[i] = ec._FlightListResponse_operationType(ctx, field, obj)
+
+		case "flights":
+
+			out.Values[i] = ec._FlightListResponse_flights(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -3086,7 +3324,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "testEndpoint":
+		case "checkCredentials":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3095,7 +3333,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_testEndpoint(ctx, field)
+				res = ec._Query_checkCredentials(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -3145,65 +3383,11 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	}
 
 	switch fields[0].Name {
-	case "testList":
-		return ec._Subscription_testList(ctx, fields[0])
+	case "flightList":
+		return ec._Subscription_flightList(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
-}
-
-var testEndpointResponseImplementors = []string{"TestEndpointResponse"}
-
-func (ec *executionContext) _TestEndpointResponse(ctx context.Context, sel ast.SelectionSet, obj *model.TestEndpointResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, testEndpointResponseImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TestEndpointResponse")
-		case "response":
-
-			out.Values[i] = ec._TestEndpointResponse_response(ctx, field, obj)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var testListResponseImplementors = []string{"TestListResponse"}
-
-func (ec *executionContext) _TestListResponse(ctx context.Context, sel ast.SelectionSet, obj *model.TestListResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, testListResponseImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TestListResponse")
-		case "operationType":
-
-			out.Values[i] = ec._TestListResponse_operationType(ctx, field, obj)
-
-		case "objects":
-
-			out.Values[i] = ec._TestListResponse_objects(ctx, field, obj)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
 }
 
 var timestampImplementors = []string{"Timestamp"}
@@ -3568,9 +3752,57 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNCheckCredentialsInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckCredentialsInput(ctx context.Context, v interface{}) (model.CheckCredentialsInput, error) {
+	res, err := ec.unmarshalInputCheckCredentialsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCheckCredentialsResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckCredentialsResponse(ctx context.Context, sel ast.SelectionSet, v model.CheckCredentialsResponse) graphql.Marshaler {
+	return ec._CheckCredentialsResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCheckCredentialsResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckCredentialsResponse(ctx context.Context, sel ast.SelectionSet, v *model.CheckCredentialsResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CheckCredentialsResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNFilterParamInput2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFilterParamInput(ctx context.Context, v interface{}) (*model.FilterParamInput, error) {
 	res, err := ec.unmarshalInputFilterParamInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFlight2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlight(ctx context.Context, sel ast.SelectionSet, v *model.Flight) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Flight(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNFlightListInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightListInput(ctx context.Context, v interface{}) (model.FlightListInput, error) {
+	res, err := ec.unmarshalInputFlightListInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFlightListResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightListResponse(ctx context.Context, sel ast.SelectionSet, v model.FlightListResponse) graphql.Marshaler {
+	return ec._FlightListResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFlightListResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightListResponse(ctx context.Context, sel ast.SelectionSet, v *model.FlightListResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._FlightListResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
@@ -3586,16 +3818,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNMyObject2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐMyObject(ctx context.Context, sel ast.SelectionSet, v *model.MyObject) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._MyObject(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSortParamInput2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐSortParamInput(ctx context.Context, v interface{}) (*model.SortParamInput, error) {
@@ -3616,44 +3838,6 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNTestEndpointInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestEndpointInput(ctx context.Context, v interface{}) (model.TestEndpointInput, error) {
-	res, err := ec.unmarshalInputTestEndpointInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTestEndpointResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestEndpointResponse(ctx context.Context, sel ast.SelectionSet, v model.TestEndpointResponse) graphql.Marshaler {
-	return ec._TestEndpointResponse(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTestEndpointResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestEndpointResponse(ctx context.Context, sel ast.SelectionSet, v *model.TestEndpointResponse) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TestEndpointResponse(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNTestListInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestListInput(ctx context.Context, v interface{}) (model.TestListInput, error) {
-	res, err := ec.unmarshalInputTestListInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTestListResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestListResponse(ctx context.Context, sel ast.SelectionSet, v model.TestListResponse) graphql.Marshaler {
-	return ec._TestListResponse(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTestListResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐTestListResponse(ctx context.Context, sel ast.SelectionSet, v *model.TestListResponse) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TestListResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -3955,23 +4139,7 @@ func (ec *executionContext) unmarshalOFilterParamInput2ᚕᚖgithubᚗcomᚋDago
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalInt(*v)
-	return res
-}
-
-func (ec *executionContext) marshalOMyObject2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐMyObjectᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.MyObject) graphql.Marshaler {
+func (ec *executionContext) marshalOFlight2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Flight) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3998,7 +4166,7 @@ func (ec *executionContext) marshalOMyObject2ᚕᚖgithubᚗcomᚋDagosuᚋBooki
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNMyObject2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐMyObject(ctx, sel, v[i])
+			ret[i] = ec.marshalNFlight2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlight(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4016,6 +4184,22 @@ func (ec *executionContext) marshalOMyObject2ᚕᚖgithubᚗcomᚋDagosuᚋBooki
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOOperationType2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐOperationType(ctx context.Context, v interface{}) (*model.OperationType, error) {

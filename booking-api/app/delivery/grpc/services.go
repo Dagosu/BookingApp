@@ -9,5 +9,6 @@ import (
 
 // RegisterServices instantiates and registers all grpc delivery services
 func RegisterServices(s *grpc.Server, u *usecase.Usecases, d *database.Db) {
-	dt.RegisterTestServiceServer(s, newTestServiceServer(u.TestUsecase))
+	dt.RegisterFlightServiceServer(s, newFlightServiceServer(u.FlightUsecase))
+	dt.RegisterUserServiceServer(s, newUserServiceServer(u.UserUsecase))
 }

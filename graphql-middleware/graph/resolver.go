@@ -9,7 +9,7 @@ import "github.com/Dagosu/BookingApp/graphql-middleware/graph/upstream"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Server struct {
-	testClient *upstream.TestClient
+	bookingClient *upstream.BookingClient
 }
 
 type Resolver struct {

@@ -28,7 +28,7 @@ func NewGraphQLServer() (*Server, error) {
 		grpc.WithKeepaliveParams(kacp),
 	})
 
-	s.testClient, err = upstream.TestClientNew(gdomain.GetServiceURL(gdomain.TestService), opts)
+	s.bookingClient, err = upstream.BookingClientNew(gdomain.GetServiceURL(gdomain.BookingService), opts)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -39,13 +39,13 @@ func NewGraphQLServer() (*Server, error) {
 
 // Close terminates any open dependencies.
 func (s *Server) Close() {
-	if s.testClient != nil {
-		s.testClient.Close()
+	if s.bookingClient != nil {
+		s.bookingClient.Close()
 	}
 }
 
-func (s *Server) TestClient() *upstream.TestClient {
-	return s.testClient
+func (s *Server) BookingClient() *upstream.BookingClient {
+	return s.bookingClient
 }
 
 func (s *Server) ToExecutableSchema() graphql.ExecutableSchema {

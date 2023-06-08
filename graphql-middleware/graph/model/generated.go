@@ -8,6 +8,16 @@ import (
 	"strconv"
 )
 
+// Query
+type CheckCredentialsInput struct {
+	Email    *string `json:"email,omitempty"`
+	Password *string `json:"password,omitempty"`
+}
+
+type CheckCredentialsResponse struct {
+	Authorized *bool `json:"authorized,omitempty"`
+}
+
 // Input
 type FilterParamInput struct {
 	Condition *string `json:"condition,omitempty"`
@@ -16,28 +26,17 @@ type FilterParamInput struct {
 	Value     *string `json:"value,omitempty"`
 }
 
-type MyObject struct {
-	ID   string     `json:"id"`
-	Name *string    `json:"name,omitempty"`
-	Date *Timestamp `json:"date,omitempty"`
-}
-
-type SortParamInput struct {
-	Field *string        `json:"field,omitempty"`
-	Order *ViewSortOrder `json:"order,omitempty"`
-}
-
-// Query
-type TestEndpointInput struct {
-	Request *string `json:"request,omitempty"`
-}
-
-type TestEndpointResponse struct {
-	Response *string `json:"response,omitempty"`
+type Flight struct {
+	ID            string     `json:"id"`
+	Departure     *string    `json:"departure,omitempty"`
+	DepartureTime *Timestamp `json:"departureTime,omitempty"`
+	Arrival       *string    `json:"arrival,omitempty"`
+	ArrivalTime   *Timestamp `json:"arrivalTime,omitempty"`
+	BookableSeats *int       `json:"bookableSeats,omitempty"`
 }
 
 // Subscription
-type TestListInput struct {
+type FlightListInput struct {
 	Limit  *int                `json:"limit,omitempty"`
 	Offset *int                `json:"offset,omitempty"`
 	Query  *string             `json:"query,omitempty"`
@@ -45,9 +44,14 @@ type TestListInput struct {
 	Filter []*FilterParamInput `json:"filter,omitempty"`
 }
 
-type TestListResponse struct {
+type FlightListResponse struct {
 	OperationType *OperationType `json:"operationType,omitempty"`
-	Objects       []*MyObject    `json:"objects,omitempty"`
+	Flights       []*Flight      `json:"flights,omitempty"`
+}
+
+type SortParamInput struct {
+	Field *string        `json:"field,omitempty"`
+	Order *ViewSortOrder `json:"order,omitempty"`
 }
 
 // Type
