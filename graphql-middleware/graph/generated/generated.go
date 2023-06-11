@@ -37,6 +37,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Mutation() MutationResolver
 	Query() QueryResolver
 	Subscription() SubscriptionResolver
 }
@@ -47,6 +48,10 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	CheckCredentialsResponse struct {
 		Authorized func(childComplexity int) int
+	}
+
+	FavoriteFlightResponse struct {
+		FavoritedFlight func(childComplexity int) int
 	}
 
 	Flight struct {
@@ -63,6 +68,15 @@ type ComplexityRoot struct {
 		OperationType func(childComplexity int) int
 	}
 
+	Mutation struct {
+		FavoriteFlight func(childComplexity int, in model.FavoriteFlightInput) int
+		PurchaseFlight func(childComplexity int, in model.PurchaseFlightInput) int
+	}
+
+	PurchaseFlightResponse struct {
+		PurchasedFlight func(childComplexity int) int
+	}
+
 	Query struct {
 		CheckCredentials func(childComplexity int, in model.CheckCredentialsInput) int
 	}
@@ -77,6 +91,10 @@ type ComplexityRoot struct {
 	}
 }
 
+type MutationResolver interface {
+	PurchaseFlight(ctx context.Context, in model.PurchaseFlightInput) (*model.PurchaseFlightResponse, error)
+	FavoriteFlight(ctx context.Context, in model.FavoriteFlightInput) (*model.FavoriteFlightResponse, error)
+}
 type QueryResolver interface {
 	CheckCredentials(ctx context.Context, in model.CheckCredentialsInput) (*model.CheckCredentialsResponse, error)
 }
@@ -105,6 +123,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CheckCredentialsResponse.Authorized(childComplexity), true
+
+	case "FavoriteFlightResponse.favoritedFlight":
+		if e.complexity.FavoriteFlightResponse.FavoritedFlight == nil {
+			break
+		}
+
+		return e.complexity.FavoriteFlightResponse.FavoritedFlight(childComplexity), true
 
 	case "Flight.arrival":
 		if e.complexity.Flight.Arrival == nil {
@@ -162,6 +187,37 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.FlightListResponse.OperationType(childComplexity), true
 
+	case "Mutation.favoriteFlight":
+		if e.complexity.Mutation.FavoriteFlight == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_favoriteFlight_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.FavoriteFlight(childComplexity, args["in"].(model.FavoriteFlightInput)), true
+
+	case "Mutation.purchaseFlight":
+		if e.complexity.Mutation.PurchaseFlight == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_purchaseFlight_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.PurchaseFlight(childComplexity, args["in"].(model.PurchaseFlightInput)), true
+
+	case "PurchaseFlightResponse.purchasedFlight":
+		if e.complexity.PurchaseFlightResponse.PurchasedFlight == nil {
+			break
+		}
+
+		return e.complexity.PurchaseFlightResponse.PurchasedFlight(childComplexity), true
+
 	case "Query.checkCredentials":
 		if e.complexity.Query.CheckCredentials == nil {
 			break
@@ -209,8 +265,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCheckCredentialsInput,
+		ec.unmarshalInputFavoriteFlightInput,
 		ec.unmarshalInputFilterParamInput,
 		ec.unmarshalInputFlightListInput,
+		ec.unmarshalInputPurchaseFlightInput,
 		ec.unmarshalInputSortParamInput,
 	)
 	first := true
@@ -224,6 +282,21 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			first = false
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
 			data := ec._Query(ctx, rc.Operation.SelectionSet)
+			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Mutation:
+		return func(ctx context.Context) *graphql.Response {
+			if !first {
+				return nil
+			}
+			first = false
+			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
+			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 
@@ -391,6 +464,32 @@ type FlightListResponse {
 
 type Subscription {
   	flightList(in: FlightListInput!): FlightListResponse!
+}
+
+"""
+Subscription
+"""
+input PurchaseFlightInput {
+	userId: String
+	flightId: String
+}
+
+type PurchaseFlightResponse {
+	purchasedFlight: Flight
+}
+
+input FavoriteFlightInput {
+	userId: String
+	flightId: String
+}
+
+type FavoriteFlightResponse {
+	favoritedFlight: Flight
+}
+
+type Mutation {
+	purchaseFlight(in: PurchaseFlightInput!): PurchaseFlightResponse!
+	favoriteFlight(in: FavoriteFlightInput!): FavoriteFlightResponse!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -398,6 +497,36 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_favoriteFlight_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.FavoriteFlightInput
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNFavoriteFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFavoriteFlightInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_purchaseFlight_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.PurchaseFlightInput
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNPurchaseFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐPurchaseFlightInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -518,6 +647,61 @@ func (ec *executionContext) fieldContext_CheckCredentialsResponse_authorized(ctx
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FavoriteFlightResponse_favoritedFlight(ctx context.Context, field graphql.CollectedField, obj *model.FavoriteFlightResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FavoriteFlightResponse_favoritedFlight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FavoritedFlight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlight(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FavoriteFlightResponse_favoritedFlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FavoriteFlightResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
 	}
 	return fc, nil
@@ -856,6 +1040,179 @@ func (ec *executionContext) _FlightListResponse_flights(ctx context.Context, fie
 func (ec *executionContext) fieldContext_FlightListResponse_flights(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "FlightListResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_purchaseFlight(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_purchaseFlight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().PurchaseFlight(rctx, fc.Args["in"].(model.PurchaseFlightInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PurchaseFlightResponse)
+	fc.Result = res
+	return ec.marshalNPurchaseFlightResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐPurchaseFlightResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_purchaseFlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "purchasedFlight":
+				return ec.fieldContext_PurchaseFlightResponse_purchasedFlight(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PurchaseFlightResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_purchaseFlight_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_favoriteFlight(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_favoriteFlight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().FavoriteFlight(rctx, fc.Args["in"].(model.FavoriteFlightInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FavoriteFlightResponse)
+	fc.Result = res
+	return ec.marshalNFavoriteFlightResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFavoriteFlightResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_favoriteFlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "favoritedFlight":
+				return ec.fieldContext_FavoriteFlightResponse_favoritedFlight(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FavoriteFlightResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_favoriteFlight_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PurchaseFlightResponse_purchasedFlight(ctx context.Context, field graphql.CollectedField, obj *model.PurchaseFlightResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PurchaseFlightResponse_purchasedFlight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PurchasedFlight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlight(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PurchaseFlightResponse_purchasedFlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PurchaseFlightResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3036,6 +3393,44 @@ func (ec *executionContext) unmarshalInputCheckCredentialsInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputFavoriteFlightInput(ctx context.Context, obj interface{}) (model.FavoriteFlightInput, error) {
+	var it model.FavoriteFlightInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"userId", "flightId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		case "flightId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("flightId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FlightID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFilterParamInput(ctx context.Context, obj interface{}) (model.FilterParamInput, error) {
 	var it model.FilterParamInput
 	asMap := map[string]interface{}{}
@@ -3157,6 +3552,44 @@ func (ec *executionContext) unmarshalInputFlightListInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPurchaseFlightInput(ctx context.Context, obj interface{}) (model.PurchaseFlightInput, error) {
+	var it model.PurchaseFlightInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"userId", "flightId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		case "flightId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("flightId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FlightID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSortParamInput(ctx context.Context, obj interface{}) (model.SortParamInput, error) {
 	var it model.SortParamInput
 	asMap := map[string]interface{}{}
@@ -3216,6 +3649,31 @@ func (ec *executionContext) _CheckCredentialsResponse(ctx context.Context, sel a
 		case "authorized":
 
 			out.Values[i] = ec._CheckCredentialsResponse_authorized(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var favoriteFlightResponseImplementors = []string{"FavoriteFlightResponse"}
+
+func (ec *executionContext) _FavoriteFlightResponse(ctx context.Context, sel ast.SelectionSet, obj *model.FavoriteFlightResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, favoriteFlightResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FavoriteFlightResponse")
+		case "favoritedFlight":
+
+			out.Values[i] = ec._FavoriteFlightResponse_favoritedFlight(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -3293,6 +3751,79 @@ func (ec *executionContext) _FlightListResponse(ctx context.Context, sel ast.Sel
 		case "flights":
 
 			out.Values[i] = ec._FlightListResponse_flights(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var mutationImplementors = []string{"Mutation"}
+
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Mutation",
+	})
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		innerCtx := graphql.WithRootFieldContext(ctx, &graphql.RootFieldContext{
+			Object: field.Name,
+			Field:  field,
+		})
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "purchaseFlight":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_purchaseFlight(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "favoriteFlight":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_favoriteFlight(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var purchaseFlightResponseImplementors = []string{"PurchaseFlightResponse"}
+
+func (ec *executionContext) _PurchaseFlightResponse(ctx context.Context, sel ast.SelectionSet, obj *model.PurchaseFlightResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, purchaseFlightResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PurchaseFlightResponse")
+		case "purchasedFlight":
+
+			out.Values[i] = ec._PurchaseFlightResponse_purchasedFlight(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -3771,6 +4302,25 @@ func (ec *executionContext) marshalNCheckCredentialsResponse2ᚖgithubᚗcomᚋD
 	return ec._CheckCredentialsResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNFavoriteFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFavoriteFlightInput(ctx context.Context, v interface{}) (model.FavoriteFlightInput, error) {
+	res, err := ec.unmarshalInputFavoriteFlightInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFavoriteFlightResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFavoriteFlightResponse(ctx context.Context, sel ast.SelectionSet, v model.FavoriteFlightResponse) graphql.Marshaler {
+	return ec._FavoriteFlightResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFavoriteFlightResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFavoriteFlightResponse(ctx context.Context, sel ast.SelectionSet, v *model.FavoriteFlightResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._FavoriteFlightResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNFilterParamInput2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFilterParamInput(ctx context.Context, v interface{}) (*model.FilterParamInput, error) {
 	res, err := ec.unmarshalInputFilterParamInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
@@ -3818,6 +4368,25 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNPurchaseFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐPurchaseFlightInput(ctx context.Context, v interface{}) (model.PurchaseFlightInput, error) {
+	res, err := ec.unmarshalInputPurchaseFlightInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPurchaseFlightResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐPurchaseFlightResponse(ctx context.Context, sel ast.SelectionSet, v model.PurchaseFlightResponse) graphql.Marshaler {
+	return ec._PurchaseFlightResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPurchaseFlightResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐPurchaseFlightResponse(ctx context.Context, sel ast.SelectionSet, v *model.PurchaseFlightResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PurchaseFlightResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSortParamInput2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐSortParamInput(ctx context.Context, v interface{}) (*model.SortParamInput, error) {
@@ -4184,6 +4753,13 @@ func (ec *executionContext) marshalOFlight2ᚕᚖgithubᚗcomᚋDagosuᚋBooking
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOFlight2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlight(ctx context.Context, sel ast.SelectionSet, v *model.Flight) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Flight(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

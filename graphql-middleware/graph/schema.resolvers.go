@@ -6,10 +6,21 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	graph "github.com/Dagosu/BookingApp/graphql-middleware/graph/generated"
 	"github.com/Dagosu/BookingApp/graphql-middleware/graph/model"
 )
+
+// PurchaseFlight is the resolver for the purchaseFlight field.
+func (r *mutationResolver) PurchaseFlight(ctx context.Context, in model.PurchaseFlightInput) (*model.PurchaseFlightResponse, error) {
+	panic(fmt.Errorf("not implemented: PurchaseFlight - purchaseFlight"))
+}
+
+// FavoriteFlight is the resolver for the favoriteFlight field.
+func (r *mutationResolver) FavoriteFlight(ctx context.Context, in model.FavoriteFlightInput) (*model.FavoriteFlightResponse, error) {
+	panic(fmt.Errorf("not implemented: FavoriteFlight - favoriteFlight"))
+}
 
 // CheckCredentials is the resolver for the checkCredentials field.
 func (r *queryResolver) CheckCredentials(ctx context.Context, in model.CheckCredentialsInput) (*model.CheckCredentialsResponse, error) {
@@ -21,11 +32,15 @@ func (r *subscriptionResolver) FlightList(ctx context.Context, in model.FlightLi
 	return r.resolveFlightList(ctx, in)
 }
 
+// Mutation returns graph.MutationResolver implementation.
+func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
+
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
 // Subscription returns graph.SubscriptionResolver implementation.
 func (r *Resolver) Subscription() graph.SubscriptionResolver { return &subscriptionResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }

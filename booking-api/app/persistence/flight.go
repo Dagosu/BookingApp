@@ -102,10 +102,14 @@ func (tr *flightRepository) createMatchConditions(req *dt.FlightListRequest) pri
 
 	if req.GetQuery() != "" {
 		var search bson.E
-		// query := req.GetQuery()
-		// regex := primitive.Regex{Pattern: query, Options: "im"}
+		query := req.GetQuery()
+		regex := primitive.Regex{Pattern: query, Options: "im"}
 
-		search = bson.E{Key: "$or", Value: bson.A{}}
+		search = bson.E{Key: "$or", Value: bson.A{
+			bson.D{{Key: "departure", Value: regex}},
+			bson.D{{Key: "arrival", Value: regex}},
+			bson.D{{Key: "bookable_seats", Value: regex}},
+		}}
 
 		matchConditions = append(matchConditions, search)
 	}

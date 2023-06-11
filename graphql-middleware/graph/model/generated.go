@@ -18,6 +18,15 @@ type CheckCredentialsResponse struct {
 	Authorized *bool `json:"authorized,omitempty"`
 }
 
+type FavoriteFlightInput struct {
+	UserID   *string `json:"userId,omitempty"`
+	FlightID *string `json:"flightId,omitempty"`
+}
+
+type FavoriteFlightResponse struct {
+	FavoritedFlight *Flight `json:"favoritedFlight,omitempty"`
+}
+
 // Input
 type FilterParamInput struct {
 	Condition *string `json:"condition,omitempty"`
@@ -47,6 +56,16 @@ type FlightListInput struct {
 type FlightListResponse struct {
 	OperationType *OperationType `json:"operationType,omitempty"`
 	Flights       []*Flight      `json:"flights,omitempty"`
+}
+
+// Subscription
+type PurchaseFlightInput struct {
+	UserID   *string `json:"userId,omitempty"`
+	FlightID *string `json:"flightId,omitempty"`
+}
+
+type PurchaseFlightResponse struct {
+	PurchasedFlight *Flight `json:"purchasedFlight,omitempty"`
 }
 
 type SortParamInput struct {

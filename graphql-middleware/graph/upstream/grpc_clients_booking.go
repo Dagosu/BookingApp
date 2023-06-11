@@ -7,9 +7,10 @@ import (
 
 // FlightsClient is the grpc client that calls booking-api
 type BookingClient struct {
-	conn          *grpc.ClientConn
-	FlightService dt.FlightServiceClient
-	UserService   dt.UserServiceClient
+	conn                      *grpc.ClientConn
+	FlightService             dt.FlightServiceClient
+	UserService               dt.UserServiceClient
+	UserFlightsMappingService dt.UserFlightsMappingServiceClient
 }
 
 func BookingClientNew(url string, opts []grpc.DialOption) (*BookingClient, error) {
@@ -20,8 +21,9 @@ func BookingClientNew(url string, opts []grpc.DialOption) (*BookingClient, error
 
 	fsc := dt.NewFlightServiceClient(conn)
 	usc := dt.NewUserServiceClient(conn)
+	ufmsc := dt.NewUserFlightsMappingServiceClient(conn)
 
-	return &BookingClient{conn, fsc, usc}, nil
+	return &BookingClient{conn, fsc, usc, ufmsc}, nil
 }
 
 func (c *BookingClient) Close() {

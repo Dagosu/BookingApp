@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package user_flights_mapping;
+
+import "flight.proto";
+import "user.proto";
+
+option go_package = "github.com/Dagosu/BookingApp/datatypes";
+
+message UserFlightsMapping {
+    string id = 1;
+    user.User user = 2;
+    repeated flight.Flight favorited_flights = 3;
+    repeated flight.Flight purchased_flights = 4;
+}
+
+message PurchaseFlightRequest {
+    string user_id = 1;
+    string flight_id = 2;
+}
+
+message PurchaseFlightResponse{
+    flight.Flight purchased_flight = 1;
+}
+
+message FavoriteFlightRequest {
+    string user_id = 1;
+    string flight_id = 2;
+}
+
+message FavoriteFlightResponse{
+    flight.Flight favorited_flight = 1;
+}
+
+service UserFlightsMappingService {
+    rpc PurchaseFlight(PurchaseFlightRequest) returns (PurchaseFlightResponse);
+    rpc FavoriteFlight(FavoriteFlightRequest) returns (FavoriteFlightResponse);
+}

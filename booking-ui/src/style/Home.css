@@ -1,0 +1,13 @@
+/* Home.css */
+.home-container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.home-title {
+  text-align: center;
+  color: #003366;
+  font-size: 2em;
+  margin-bottom: 20px;
+}

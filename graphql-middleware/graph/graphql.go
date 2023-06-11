@@ -54,13 +54,13 @@ func (s *Server) ToExecutableSchema() graphql.ExecutableSchema {
 	})
 }
 
-// func (s *Server) Mutation() generated.MutationResolver {
-// 	return &mutationResolver{
-// 		&Resolver{
-// 			server: s,
-// 		},
-// 	}
-// }
+func (s *Server) Mutation() generated.MutationResolver {
+	return &mutationResolver{
+		&Resolver{
+			server: s,
+		},
+	}
+}
 
 func (s *Server) Query() generated.QueryResolver {
 	return &queryResolver{

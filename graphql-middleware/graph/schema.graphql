@@ -116,3 +116,29 @@ type FlightListResponse {
 type Subscription {
   	flightList(in: FlightListInput!): FlightListResponse!
 }
+
+"""
+Subscription
+"""
+input PurchaseFlightInput {
+	userId: String
+	flightId: String
+}
+
+type PurchaseFlightResponse {
+	purchasedFlight: Flight
+}
+
+input FavoriteFlightInput {
+	userId: String
+	flightId: String
+}
+
+type FavoriteFlightResponse {
+	favoritedFlight: Flight
+}
+
+type Mutation {
+	purchaseFlight(in: PurchaseFlightInput!): PurchaseFlightResponse!
+	favoriteFlight(in: FavoriteFlightInput!): FavoriteFlightResponse!
+}
