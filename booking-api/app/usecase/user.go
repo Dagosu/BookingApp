@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/Dagosu/BookingApp/booking-api/app/domain"
+	dt "github.com/Dagosu/BookingApp/datatypes"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// userUsecase is the struct that implements the domain flight usecase
 type userUsecase struct {
 	ur domain.UserRepository
 }
@@ -17,15 +17,15 @@ func newuserUsecase(ur domain.UserRepository) *userUsecase {
 	return &userUsecase{ur}
 }
 
-func (fu *userUsecase) CheckCredentials(ctx context.Context, email, password string) (bool, error) {
+func (fu *userUsecase) CheckCredentials(ctx context.Context, email, password string) (*dt.User, error) {
 	user, err := fu.ur.CheckCredentials(ctx, email, password)
 	if err != nil && err != mongo.ErrNoDocuments {
-		return false, err
+		return nil, err
 	}
 
 	if user == nil || err == mongo.ErrNoDocuments {
-		return false, fmt.Errorf("Invalid credentials!")
+		return nil, fmt.Errorf("Invalid credentials!")
 	}
 
-	return true, nil
+	return user, nil
 }

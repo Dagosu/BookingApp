@@ -19,7 +19,10 @@ message Flight {
     google.protobuf.Timestamp departure_time = 3;
     string arrival = 4;
     google.protobuf.Timestamp arrival_time = 5;
-    int32 bookable_seats = 6;
+    int32 total_seats = 6;
+    int32 bookable_seats = 7;
+    string airline = 8;
+    float price = 9;
 }
 
 message FlightListRequest {
@@ -63,6 +66,15 @@ message FilterParam {
     string value = 4;
 }
 
+message GetFlightRequest {
+    string flight_id = 1;
+}
+
+message GetFlightResponse {
+    Flight flight = 1;
+}
+
 service FlightService {
     rpc FlightList(FlightListRequest) returns (stream FlightListResponse);
+    rpc GetFlight(GetFlightRequest) returns (GetFlightResponse);
 }

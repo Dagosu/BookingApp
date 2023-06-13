@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FlightServiceClient interface {
 	FlightList(ctx context.Context, in *FlightListRequest, opts ...grpc.CallOption) (FlightService_FlightListClient, error)
+	GetFlight(ctx context.Context, in *GetFlightRequest, opts ...grpc.CallOption) (*GetFlightResponse, error)
 }
 
 type flightServiceClient struct {
@@ -65,11 +66,21 @@ func (x *flightServiceFlightListClient) Recv() (*FlightListResponse, error) {
 	return m, nil
 }
 
+func (c *flightServiceClient) GetFlight(ctx context.Context, in *GetFlightRequest, opts ...grpc.CallOption) (*GetFlightResponse, error) {
+	out := new(GetFlightResponse)
+	err := c.cc.Invoke(ctx, "/flight.FlightService/GetFlight", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FlightServiceServer is the server API for FlightService service.
 // All implementations should embed UnimplementedFlightServiceServer
 // for forward compatibility
 type FlightServiceServer interface {
 	FlightList(*FlightListRequest, FlightService_FlightListServer) error
+	GetFlight(context.Context, *GetFlightRequest) (*GetFlightResponse, error)
 }
 
 // UnimplementedFlightServiceServer should be embedded to have forward compatible implementations.
@@ -78,6 +89,9 @@ type UnimplementedFlightServiceServer struct {
 
 func (UnimplementedFlightServiceServer) FlightList(*FlightListRequest, FlightService_FlightListServer) error {
 	return status.Errorf(codes.Unimplemented, "method FlightList not implemented")
+}
+func (UnimplementedFlightServiceServer) GetFlight(context.Context, *GetFlightRequest) (*GetFlightResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFlight not implemented")
 }
 
 // UnsafeFlightServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -112,13 +126,36 @@ func (x *flightServiceFlightListServer) Send(m *FlightListResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _FlightService_GetFlight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFlightRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FlightServiceServer).GetFlight(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/flight.FlightService/GetFlight",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FlightServiceServer).GetFlight(ctx, req.(*GetFlightRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FlightService_ServiceDesc is the grpc.ServiceDesc for FlightService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var FlightService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "flight.FlightService",
 	HandlerType: (*FlightServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetFlight",
+			Handler:    _FlightService_GetFlight_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "FlightList",

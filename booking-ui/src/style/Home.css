@@ -1,13 +1,23 @@
-/* Home.css */
-.home-container {
-  width: 80%;
-  margin: 0 auto;
-  padding: 20px;
+.button-group {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
-.home-title {
+.button {
+  background-color: #008CBA;
+  border: none;
+  color: white;
+  padding: 15px 32px;
   text-align: center;
-  color: #003366;
-  font-size: 2em;
-  margin-bottom: 20px;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #006994;
 }

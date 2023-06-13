@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	graph "github.com/Dagosu/BookingApp/graphql-middleware/graph/generated"
 	"github.com/Dagosu/BookingApp/graphql-middleware/graph/model"
@@ -14,17 +13,37 @@ import (
 
 // PurchaseFlight is the resolver for the purchaseFlight field.
 func (r *mutationResolver) PurchaseFlight(ctx context.Context, in model.PurchaseFlightInput) (*model.PurchaseFlightResponse, error) {
-	panic(fmt.Errorf("not implemented: PurchaseFlight - purchaseFlight"))
+	return r.resolvePurchaseFlight(ctx, in)
 }
 
 // FavoriteFlight is the resolver for the favoriteFlight field.
 func (r *mutationResolver) FavoriteFlight(ctx context.Context, in model.FavoriteFlightInput) (*model.FavoriteFlightResponse, error) {
-	panic(fmt.Errorf("not implemented: FavoriteFlight - favoriteFlight"))
+	return r.resolveFavoriteFlight(ctx, in)
 }
 
 // CheckCredentials is the resolver for the checkCredentials field.
 func (r *queryResolver) CheckCredentials(ctx context.Context, in model.CheckCredentialsInput) (*model.CheckCredentialsResponse, error) {
 	return r.resolveCheckCredentials(ctx, in)
+}
+
+// GetFlight is the resolver for the getFlight field.
+func (r *queryResolver) GetFlight(ctx context.Context, in model.GetFlightInput) (*model.GetFlightResponse, error) {
+	return r.resolveGetFlight(ctx, in)
+}
+
+// GetPurchasedFlights is the resolver for the getPurchasedFlights field.
+func (r *queryResolver) GetPurchasedFlights(ctx context.Context, in model.GetPurchasedFlightsInput) (*model.GetPurchasedFlightsResponse, error) {
+	return r.resolveGetPurchasedFlights(ctx, in)
+}
+
+// GetFavoritedFlights is the resolver for the getFavoritedFlights field.
+func (r *queryResolver) GetFavoritedFlights(ctx context.Context, in model.GetFavoritedFlightsInput) (*model.GetFavoritedFlightsResponse, error) {
+	return r.resolveGetFavoritedFlights(ctx, in)
+}
+
+// RecommendFlight is the resolver for the recommendFlight field.
+func (r *queryResolver) RecommendFlight(ctx context.Context, in model.RecommendFlightInput) (*model.RecommendFlightResponse, error) {
+	return r.resolveRecommendFlight(ctx, in)
 }
 
 // FlightList is the resolver for the flightList field.

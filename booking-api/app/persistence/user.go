@@ -38,3 +38,14 @@ func (ur *userRepository) CheckCredentials(ctx context.Context, email, password 
 
 	return user, nil
 }
+
+func (ur *userRepository) Get(ctx context.Context, id string) (*dt.User, error) {
+	user := &dt.User{}
+
+	err := ur.c.FindOne(ctx, bson.D{{Key: "_id", Value: id}}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}

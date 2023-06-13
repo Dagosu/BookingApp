@@ -8,14 +8,14 @@ const CHECK_CREDENTIALS = gql`
   query CheckCredentials($in: CheckCredentialsInput!) {
     checkCredentials(in: $in) {
       authorized
+      userId
     }
   }
 `;
 
 function Login() {
-  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn, setIsLoggedIn, setUserId } = useContext(AuthContext);
   const navigate = useNavigate();
-
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loginError, setLoginError] = React.useState('');
@@ -33,6 +33,7 @@ function Login() {
       if (data?.checkCredentials?.authorized) {
         // Redirect the user to the home page if they are authorized
         setIsLoggedIn(true);
+        setUserId(data.checkCredentials.userId);
         navigate('/home');
       } else {
         // Set an error message if the user is not authorized

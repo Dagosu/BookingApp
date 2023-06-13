@@ -1,0 +1,42 @@
+.recommended-flight-list-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 5px;
+  }
+  
+  .recommended-flight-list-title {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .recommended-flight-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .recommended-flight-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease;
+  }
+  
+  .recommended-flight-item:hover {
+    background-color: #e6e6e6;
+  }
+  
+  /* CSS for the link */
+  .recommended-flight-item-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .recommended-flight-item-link:hover {
+    text-decoration: none;
+  }
+  

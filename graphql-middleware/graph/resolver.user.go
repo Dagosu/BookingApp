@@ -18,6 +18,7 @@ func (r *queryResolver) resolveCheckCredentials(ctx context.Context, in model.Ch
 	}
 
 	return &model.CheckCredentialsResponse{
+		UserID:     parser.StrRefer(res.GetUserId()),
 		Authorized: parser.BoolRefer(res.GetAuhtorized()),
 	}, nil
 }

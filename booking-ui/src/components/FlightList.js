@@ -1,4 +1,3 @@
-// FlightList.js
 import React, { useState } from 'react';
 import { useSubscription } from '@apollo/client';
 import { useForm } from 'react-hook-form';
@@ -6,6 +5,7 @@ import gql from 'graphql-tag';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../style/FlightList.css';
+import { Link } from 'react-router-dom';
 
 const FLIGHTS_SUBSCRIPTION = gql`
   subscription ($in: FlightListInput!) {
@@ -55,7 +55,7 @@ function FlightList() {
           value: Math.floor(endTime.getTime() / 1000),
         },
       ],
-      query: searchText,  // add the search text to the filter
+      query: searchText,  
     });
   };
 
@@ -73,7 +73,7 @@ function FlightList() {
           End Time:
           <DatePicker selected={endTime} onChange={date => setEndTime(date)} showTimeSelect dateFormat="Pp" className="flight-datepicker" />
         </label>
-        <label className="flight-filter-label"> {/* add a new label for the search text input field */}
+        <label className="flight-filter-label"> {}
           Search:
           <input type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="flight-search-input" />
         </label>
@@ -81,13 +81,15 @@ function FlightList() {
       </form>
 
       <div className="flight-list">
-        {data && data.flightList && data.flightList.flights.map((flight) => (
-          <div key={flight.id} className="flight-item">
-            <p>Departure: {flight.departure} at {new Date(flight.departureTime.seconds * 1000).toLocaleString()}</p>
-            <p>Arrival: {flight.arrival} at {new Date(flight.arrivalTime.seconds * 1000).toLocaleString()}</p>
-            <p>Bookable Seats: {flight.bookableSeats}</p>
-          </div>
-        ))}
+      {data && data.flightList && data.flightList.flights.map((flight) => (
+        <Link to={`/flight/${flight.id}`} key={flight.id} className="flight-item-link">
+        <div className="flight-item">
+          <p>Departure: {flight.departure} at {new Date(flight.departureTime.seconds * 1000).toLocaleString()}</p>
+          <p>Arrival: {flight.arrival} at {new Date(flight.arrivalTime.seconds * 1000).toLocaleString()}</p>
+          <p>Bookable Seats: {flight.bookableSeats}</p>
+        </div>
+      </Link>
+      ))}
       </div>
     </div>
   );

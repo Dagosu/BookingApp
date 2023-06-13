@@ -1,6 +1,8 @@
 package grpc
 
 import (
+	"context"
+
 	"github.com/Dagosu/BookingApp/booking-api/app/domain"
 	dt "github.com/Dagosu/BookingApp/datatypes"
 )
@@ -17,4 +19,15 @@ func newFlightServiceServer(tu domain.FlightUsecase) dt.FlightServiceServer {
 
 func (fs *flightServiceServer) FlightList(req *dt.FlightListRequest, stream dt.FlightService_FlightListServer) error {
 	return fs.fu.FlightList(req, stream)
+}
+
+func (fs *flightServiceServer) GetFlight(ctx context.Context, req *dt.GetFlightRequest) (*dt.GetFlightResponse, error) {
+	flight, err := fs.fu.GetFlight(ctx, req.GetFlightId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &dt.GetFlightResponse{
+		Flight: flight,
+	}, nil
 }

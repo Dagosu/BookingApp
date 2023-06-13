@@ -1,15 +1,18 @@
 package domain
 
 import (
+	"context"
+
 	dt "github.com/Dagosu/BookingApp/datatypes"
 )
 
-// FlightUsecase defines the flight usecase interface.
 type FlightUsecase interface {
 	FlightList(req *dt.FlightListRequest, stream dt.FlightService_FlightListServer) error
+	GetFlight(ctx context.Context, id string) (*dt.Flight, error)
 }
 
-// FlightRepository defines the flight repository interface.
 type FlightRepository interface {
 	FlightList(req *dt.FlightListRequest, stream dt.FlightService_FlightListServer) error
+	Get(ctx context.Context, id string) (*dt.Flight, error)
+	GetFutureFlights(ctx context.Context) ([]*dt.Flight, error)
 }

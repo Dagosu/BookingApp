@@ -16,7 +16,10 @@ func ParseFlight(f *dt.Flight) *model.Flight {
 		DepartureTime: ParsePbTimestamp(f.GetDepartureTime()),
 		Arrival:       StrRefer(f.GetArrival()),
 		ArrivalTime:   ParsePbTimestamp(f.GetArrivalTime()),
+		TotalSeats:    IntRefer(f.GetTotalSeats()),
 		BookableSeats: IntRefer(f.GetBookableSeats()),
+		Airline:       StrRefer(f.GetAirline()),
+		Price:         FloatRefer(float64(f.GetPrice())),
 	}
 }
 

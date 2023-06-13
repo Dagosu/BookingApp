@@ -15,7 +15,8 @@ type CheckCredentialsInput struct {
 }
 
 type CheckCredentialsResponse struct {
-	Authorized *bool `json:"authorized,omitempty"`
+	UserID     *string `json:"userId,omitempty"`
+	Authorized *bool   `json:"authorized,omitempty"`
 }
 
 type FavoriteFlightInput struct {
@@ -41,7 +42,10 @@ type Flight struct {
 	DepartureTime *Timestamp `json:"departureTime,omitempty"`
 	Arrival       *string    `json:"arrival,omitempty"`
 	ArrivalTime   *Timestamp `json:"arrivalTime,omitempty"`
+	TotalSeats    *int       `json:"totalSeats,omitempty"`
 	BookableSeats *int       `json:"bookableSeats,omitempty"`
+	Airline       *string    `json:"airline,omitempty"`
+	Price         *float64   `json:"price,omitempty"`
 }
 
 // Subscription
@@ -58,6 +62,30 @@ type FlightListResponse struct {
 	Flights       []*Flight      `json:"flights,omitempty"`
 }
 
+type GetFavoritedFlightsInput struct {
+	UserID *string `json:"userId,omitempty"`
+}
+
+type GetFavoritedFlightsResponse struct {
+	Flights []*Flight `json:"flights,omitempty"`
+}
+
+type GetFlightInput struct {
+	FlightID *string `json:"flightId,omitempty"`
+}
+
+type GetFlightResponse struct {
+	Flight *Flight `json:"flight,omitempty"`
+}
+
+type GetPurchasedFlightsInput struct {
+	UserID *string `json:"userId,omitempty"`
+}
+
+type GetPurchasedFlightsResponse struct {
+	Flights []*Flight `json:"flights,omitempty"`
+}
+
 // Subscription
 type PurchaseFlightInput struct {
 	UserID   *string `json:"userId,omitempty"`
@@ -66,6 +94,14 @@ type PurchaseFlightInput struct {
 
 type PurchaseFlightResponse struct {
 	PurchasedFlight *Flight `json:"purchasedFlight,omitempty"`
+}
+
+type RecommendFlightInput struct {
+	UserID *string `json:"userId,omitempty"`
+}
+
+type RecommendFlightResponse struct {
+	Flights []*Flight `json:"flights,omitempty"`
 }
 
 type SortParamInput struct {

@@ -53,3 +53,16 @@ func (r *subscriptionResolver) resolveFlightList(ctx context.Context, in model.F
 
 	return events, nil
 }
+
+func (r *queryResolver) resolveGetFlight(ctx context.Context, in model.GetFlightInput) (*model.GetFlightResponse, error) {
+	res, err := r.server.bookingClient.FlightService.GetFlight(ctx, &dt.GetFlightRequest{
+		FlightId: parser.StrDerefer(in.FlightID),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.GetFlightResponse{
+		Flight: parser.ParseFlight(res.GetFlight()),
+	}, nil
+}

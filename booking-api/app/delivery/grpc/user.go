@@ -18,12 +18,18 @@ func newUserServiceServer(uu domain.UserUsecase) dt.UserServiceServer {
 }
 
 func (us *userServiceServer) CheckCredentials(ctx context.Context, req *dt.CheckCredentialsRequest) (*dt.CheckCredentialsResponse, error) {
-	authorized, err := us.uu.CheckCredentials(ctx, req.GetEmail(), req.GetPassword())
+	user, err := us.uu.CheckCredentials(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
 		return nil, err
 	}
 
+	authorized := true
+	if user == nil {
+		authorized = false
+	}
+
 	return &dt.CheckCredentialsResponse{
+		UserId:     user.GetId(),
 		Auhtorized: authorized,
 	}, nil
 }

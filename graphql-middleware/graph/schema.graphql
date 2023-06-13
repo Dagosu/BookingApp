@@ -78,7 +78,10 @@ type Flight {
   	departureTime: Timestamp
 	arrival: String
 	arrivalTime: Timestamp
+	totalSeats: Int
 	bookableSeats: Int
+	airline: String
+	price: Float
 }
 
 """
@@ -90,11 +93,47 @@ input CheckCredentialsInput {
 }
 
 type CheckCredentialsResponse {
+	userId: String
 	authorized: Boolean
 }
 
+input GetPurchasedFlightsInput {
+	userId: String
+}
+
+type GetPurchasedFlightsResponse {
+	flights: [Flight!]
+}
+
+input GetFavoritedFlightsInput {
+	userId: String
+}
+
+type GetFavoritedFlightsResponse {
+	flights: [Flight!]
+}
+
+input RecommendFlightInput {
+	userId: String
+}
+
+type RecommendFlightResponse {
+	flights: [Flight!]
+}
+
+input GetFlightInput {
+	flightId: String
+}
+
+type GetFlightResponse {
+	flight: Flight
+}
 type Query {
   	checkCredentials(in: CheckCredentialsInput!): CheckCredentialsResponse!
+	getFlight(in: GetFlightInput!): GetFlightResponse!
+	getPurchasedFlights(in: GetPurchasedFlightsInput!): GetPurchasedFlightsResponse!
+	getFavoritedFlights(in: GetFavoritedFlightsInput!): GetFavoritedFlightsResponse!
+	recommendFlight(in: RecommendFlightInput!): RecommendFlightResponse!
 }
 
 """

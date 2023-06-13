@@ -48,6 +48,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	CheckCredentialsResponse struct {
 		Authorized func(childComplexity int) int
+		UserID     func(childComplexity int) int
 	}
 
 	FavoriteFlightResponse struct {
@@ -55,17 +56,32 @@ type ComplexityRoot struct {
 	}
 
 	Flight struct {
+		Airline       func(childComplexity int) int
 		Arrival       func(childComplexity int) int
 		ArrivalTime   func(childComplexity int) int
 		BookableSeats func(childComplexity int) int
 		Departure     func(childComplexity int) int
 		DepartureTime func(childComplexity int) int
 		ID            func(childComplexity int) int
+		Price         func(childComplexity int) int
+		TotalSeats    func(childComplexity int) int
 	}
 
 	FlightListResponse struct {
 		Flights       func(childComplexity int) int
 		OperationType func(childComplexity int) int
+	}
+
+	GetFavoritedFlightsResponse struct {
+		Flights func(childComplexity int) int
+	}
+
+	GetFlightResponse struct {
+		Flight func(childComplexity int) int
+	}
+
+	GetPurchasedFlightsResponse struct {
+		Flights func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -78,7 +94,15 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		CheckCredentials func(childComplexity int, in model.CheckCredentialsInput) int
+		CheckCredentials    func(childComplexity int, in model.CheckCredentialsInput) int
+		GetFavoritedFlights func(childComplexity int, in model.GetFavoritedFlightsInput) int
+		GetFlight           func(childComplexity int, in model.GetFlightInput) int
+		GetPurchasedFlights func(childComplexity int, in model.GetPurchasedFlightsInput) int
+		RecommendFlight     func(childComplexity int, in model.RecommendFlightInput) int
+	}
+
+	RecommendFlightResponse struct {
+		Flights func(childComplexity int) int
 	}
 
 	Subscription struct {
@@ -97,6 +121,10 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	CheckCredentials(ctx context.Context, in model.CheckCredentialsInput) (*model.CheckCredentialsResponse, error)
+	GetFlight(ctx context.Context, in model.GetFlightInput) (*model.GetFlightResponse, error)
+	GetPurchasedFlights(ctx context.Context, in model.GetPurchasedFlightsInput) (*model.GetPurchasedFlightsResponse, error)
+	GetFavoritedFlights(ctx context.Context, in model.GetFavoritedFlightsInput) (*model.GetFavoritedFlightsResponse, error)
+	RecommendFlight(ctx context.Context, in model.RecommendFlightInput) (*model.RecommendFlightResponse, error)
 }
 type SubscriptionResolver interface {
 	FlightList(ctx context.Context, in model.FlightListInput) (<-chan *model.FlightListResponse, error)
@@ -124,12 +152,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CheckCredentialsResponse.Authorized(childComplexity), true
 
+	case "CheckCredentialsResponse.userId":
+		if e.complexity.CheckCredentialsResponse.UserID == nil {
+			break
+		}
+
+		return e.complexity.CheckCredentialsResponse.UserID(childComplexity), true
+
 	case "FavoriteFlightResponse.favoritedFlight":
 		if e.complexity.FavoriteFlightResponse.FavoritedFlight == nil {
 			break
 		}
 
 		return e.complexity.FavoriteFlightResponse.FavoritedFlight(childComplexity), true
+
+	case "Flight.airline":
+		if e.complexity.Flight.Airline == nil {
+			break
+		}
+
+		return e.complexity.Flight.Airline(childComplexity), true
 
 	case "Flight.arrival":
 		if e.complexity.Flight.Arrival == nil {
@@ -173,6 +215,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Flight.ID(childComplexity), true
 
+	case "Flight.price":
+		if e.complexity.Flight.Price == nil {
+			break
+		}
+
+		return e.complexity.Flight.Price(childComplexity), true
+
+	case "Flight.totalSeats":
+		if e.complexity.Flight.TotalSeats == nil {
+			break
+		}
+
+		return e.complexity.Flight.TotalSeats(childComplexity), true
+
 	case "FlightListResponse.flights":
 		if e.complexity.FlightListResponse.Flights == nil {
 			break
@@ -186,6 +242,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.FlightListResponse.OperationType(childComplexity), true
+
+	case "GetFavoritedFlightsResponse.flights":
+		if e.complexity.GetFavoritedFlightsResponse.Flights == nil {
+			break
+		}
+
+		return e.complexity.GetFavoritedFlightsResponse.Flights(childComplexity), true
+
+	case "GetFlightResponse.flight":
+		if e.complexity.GetFlightResponse.Flight == nil {
+			break
+		}
+
+		return e.complexity.GetFlightResponse.Flight(childComplexity), true
+
+	case "GetPurchasedFlightsResponse.flights":
+		if e.complexity.GetPurchasedFlightsResponse.Flights == nil {
+			break
+		}
+
+		return e.complexity.GetPurchasedFlightsResponse.Flights(childComplexity), true
 
 	case "Mutation.favoriteFlight":
 		if e.complexity.Mutation.FavoriteFlight == nil {
@@ -230,6 +307,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CheckCredentials(childComplexity, args["in"].(model.CheckCredentialsInput)), true
 
+	case "Query.getFavoritedFlights":
+		if e.complexity.Query.GetFavoritedFlights == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getFavoritedFlights_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetFavoritedFlights(childComplexity, args["in"].(model.GetFavoritedFlightsInput)), true
+
+	case "Query.getFlight":
+		if e.complexity.Query.GetFlight == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getFlight_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetFlight(childComplexity, args["in"].(model.GetFlightInput)), true
+
+	case "Query.getPurchasedFlights":
+		if e.complexity.Query.GetPurchasedFlights == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getPurchasedFlights_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetPurchasedFlights(childComplexity, args["in"].(model.GetPurchasedFlightsInput)), true
+
+	case "Query.recommendFlight":
+		if e.complexity.Query.RecommendFlight == nil {
+			break
+		}
+
+		args, err := ec.field_Query_recommendFlight_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.RecommendFlight(childComplexity, args["in"].(model.RecommendFlightInput)), true
+
+	case "RecommendFlightResponse.flights":
+		if e.complexity.RecommendFlightResponse.Flights == nil {
+			break
+		}
+
+		return e.complexity.RecommendFlightResponse.Flights(childComplexity), true
+
 	case "Subscription.flightList":
 		if e.complexity.Subscription.FlightList == nil {
 			break
@@ -268,7 +400,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputFavoriteFlightInput,
 		ec.unmarshalInputFilterParamInput,
 		ec.unmarshalInputFlightListInput,
+		ec.unmarshalInputGetFavoritedFlightsInput,
+		ec.unmarshalInputGetFlightInput,
+		ec.unmarshalInputGetPurchasedFlightsInput,
 		ec.unmarshalInputPurchaseFlightInput,
+		ec.unmarshalInputRecommendFlightInput,
 		ec.unmarshalInputSortParamInput,
 	)
 	first := true
@@ -427,7 +563,10 @@ type Flight {
   	departureTime: Timestamp
 	arrival: String
 	arrivalTime: Timestamp
+	totalSeats: Int
 	bookableSeats: Int
+	airline: String
+	price: Float
 }
 
 """
@@ -439,11 +578,47 @@ input CheckCredentialsInput {
 }
 
 type CheckCredentialsResponse {
+	userId: String
 	authorized: Boolean
 }
 
+input GetPurchasedFlightsInput {
+	userId: String
+}
+
+type GetPurchasedFlightsResponse {
+	flights: [Flight!]
+}
+
+input GetFavoritedFlightsInput {
+	userId: String
+}
+
+type GetFavoritedFlightsResponse {
+	flights: [Flight!]
+}
+
+input RecommendFlightInput {
+	userId: String
+}
+
+type RecommendFlightResponse {
+	flights: [Flight!]
+}
+
+input GetFlightInput {
+	flightId: String
+}
+
+type GetFlightResponse {
+	flight: Flight
+}
 type Query {
   	checkCredentials(in: CheckCredentialsInput!): CheckCredentialsResponse!
+	getFlight(in: GetFlightInput!): GetFlightResponse!
+	getPurchasedFlights(in: GetPurchasedFlightsInput!): GetPurchasedFlightsResponse!
+	getFavoritedFlights(in: GetFavoritedFlightsInput!): GetFavoritedFlightsResponse!
+	recommendFlight(in: RecommendFlightInput!): RecommendFlightResponse!
 }
 
 """
@@ -558,6 +733,66 @@ func (ec *executionContext) field_Query_checkCredentials_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getFavoritedFlights_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetFavoritedFlightsInput
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNGetFavoritedFlightsInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFavoritedFlightsInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getFlight_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetFlightInput
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNGetFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFlightInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getPurchasedFlights_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetPurchasedFlightsInput
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNGetPurchasedFlightsInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetPurchasedFlightsInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_recommendFlight_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.RecommendFlightInput
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNRecommendFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐRecommendFlightInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Subscription_flightList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -610,6 +845,47 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _CheckCredentialsResponse_userId(ctx context.Context, field graphql.CollectedField, obj *model.CheckCredentialsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CheckCredentialsResponse_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CheckCredentialsResponse_userId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CheckCredentialsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _CheckCredentialsResponse_authorized(ctx context.Context, field graphql.CollectedField, obj *model.CheckCredentialsResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CheckCredentialsResponse_authorized(ctx, field)
@@ -698,8 +974,14 @@ func (ec *executionContext) fieldContext_FavoriteFlightResponse_favoritedFlight(
 				return ec.fieldContext_Flight_arrival(ctx, field)
 			case "arrivalTime":
 				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
 			case "bookableSeats":
 				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -927,6 +1209,47 @@ func (ec *executionContext) fieldContext_Flight_arrivalTime(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Flight_totalSeats(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_totalSeats(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalSeats, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Flight_totalSeats(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Flight",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Flight_bookableSeats(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Flight_bookableSeats(ctx, field)
 	if err != nil {
@@ -963,6 +1286,88 @@ func (ec *executionContext) fieldContext_Flight_bookableSeats(ctx context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Flight_airline(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_airline(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Airline, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Flight_airline(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Flight",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Flight_price(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_price(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Price, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Flight_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Flight",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1055,8 +1460,197 @@ func (ec *executionContext) fieldContext_FlightListResponse_flights(ctx context.
 				return ec.fieldContext_Flight_arrival(ctx, field)
 			case "arrivalTime":
 				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
 			case "bookableSeats":
 				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetFavoritedFlightsResponse_flights(ctx context.Context, field graphql.CollectedField, obj *model.GetFavoritedFlightsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetFavoritedFlightsResponse_flights(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Flights, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetFavoritedFlightsResponse_flights(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetFavoritedFlightsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetFlightResponse_flight(ctx context.Context, field graphql.CollectedField, obj *model.GetFlightResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetFlightResponse_flight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Flight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlight(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetFlightResponse_flight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetFlightResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetPurchasedFlightsResponse_flights(ctx context.Context, field graphql.CollectedField, obj *model.GetPurchasedFlightsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetPurchasedFlightsResponse_flights(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Flights, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetPurchasedFlightsResponse_flights(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetPurchasedFlightsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1228,8 +1822,14 @@ func (ec *executionContext) fieldContext_PurchaseFlightResponse_purchasedFlight(
 				return ec.fieldContext_Flight_arrival(ctx, field)
 			case "arrivalTime":
 				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
 			case "bookableSeats":
 				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1276,6 +1876,8 @@ func (ec *executionContext) fieldContext_Query_checkCredentials(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "userId":
+				return ec.fieldContext_CheckCredentialsResponse_userId(ctx, field)
 			case "authorized":
 				return ec.fieldContext_CheckCredentialsResponse_authorized(ctx, field)
 			}
@@ -1290,6 +1892,242 @@ func (ec *executionContext) fieldContext_Query_checkCredentials(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_checkCredentials_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getFlight(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getFlight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetFlight(rctx, fc.Args["in"].(model.GetFlightInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetFlightResponse)
+	fc.Result = res
+	return ec.marshalNGetFlightResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFlightResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getFlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "flight":
+				return ec.fieldContext_GetFlightResponse_flight(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetFlightResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getFlight_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getPurchasedFlights(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getPurchasedFlights(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetPurchasedFlights(rctx, fc.Args["in"].(model.GetPurchasedFlightsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetPurchasedFlightsResponse)
+	fc.Result = res
+	return ec.marshalNGetPurchasedFlightsResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetPurchasedFlightsResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getPurchasedFlights(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "flights":
+				return ec.fieldContext_GetPurchasedFlightsResponse_flights(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetPurchasedFlightsResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getPurchasedFlights_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getFavoritedFlights(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getFavoritedFlights(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetFavoritedFlights(rctx, fc.Args["in"].(model.GetFavoritedFlightsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetFavoritedFlightsResponse)
+	fc.Result = res
+	return ec.marshalNGetFavoritedFlightsResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFavoritedFlightsResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getFavoritedFlights(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "flights":
+				return ec.fieldContext_GetFavoritedFlightsResponse_flights(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetFavoritedFlightsResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getFavoritedFlights_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_recommendFlight(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_recommendFlight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().RecommendFlight(rctx, fc.Args["in"].(model.RecommendFlightInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RecommendFlightResponse)
+	fc.Result = res
+	return ec.marshalNRecommendFlightResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐRecommendFlightResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_recommendFlight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "flights":
+				return ec.fieldContext_RecommendFlightResponse_flights(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RecommendFlightResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_recommendFlight_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -1420,6 +2258,67 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendFlightResponse_flights(ctx context.Context, field graphql.CollectedField, obj *model.RecommendFlightResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendFlightResponse_flights(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Flights, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlightᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendFlightResponse_flights(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendFlightResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
 	}
 	return fc, nil
@@ -3552,6 +4451,93 @@ func (ec *executionContext) unmarshalInputFlightListInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetFavoritedFlightsInput(ctx context.Context, obj interface{}) (model.GetFavoritedFlightsInput, error) {
+	var it model.GetFavoritedFlightsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"userId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGetFlightInput(ctx context.Context, obj interface{}) (model.GetFlightInput, error) {
+	var it model.GetFlightInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"flightId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "flightId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("flightId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FlightID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGetPurchasedFlightsInput(ctx context.Context, obj interface{}) (model.GetPurchasedFlightsInput, error) {
+	var it model.GetPurchasedFlightsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"userId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPurchaseFlightInput(ctx context.Context, obj interface{}) (model.PurchaseFlightInput, error) {
 	var it model.PurchaseFlightInput
 	asMap := map[string]interface{}{}
@@ -3584,6 +4570,35 @@ func (ec *executionContext) unmarshalInputPurchaseFlightInput(ctx context.Contex
 				return it, err
 			}
 			it.FlightID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRecommendFlightInput(ctx context.Context, obj interface{}) (model.RecommendFlightInput, error) {
+	var it model.RecommendFlightInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"userId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
 		}
 	}
 
@@ -3646,6 +4661,10 @@ func (ec *executionContext) _CheckCredentialsResponse(ctx context.Context, sel a
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CheckCredentialsResponse")
+		case "userId":
+
+			out.Values[i] = ec._CheckCredentialsResponse_userId(ctx, field, obj)
+
 		case "authorized":
 
 			out.Values[i] = ec._CheckCredentialsResponse_authorized(ctx, field, obj)
@@ -3719,9 +4738,21 @@ func (ec *executionContext) _Flight(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Flight_arrivalTime(ctx, field, obj)
 
+		case "totalSeats":
+
+			out.Values[i] = ec._Flight_totalSeats(ctx, field, obj)
+
 		case "bookableSeats":
 
 			out.Values[i] = ec._Flight_bookableSeats(ctx, field, obj)
+
+		case "airline":
+
+			out.Values[i] = ec._Flight_airline(ctx, field, obj)
+
+		case "price":
+
+			out.Values[i] = ec._Flight_price(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -3751,6 +4782,81 @@ func (ec *executionContext) _FlightListResponse(ctx context.Context, sel ast.Sel
 		case "flights":
 
 			out.Values[i] = ec._FlightListResponse_flights(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var getFavoritedFlightsResponseImplementors = []string{"GetFavoritedFlightsResponse"}
+
+func (ec *executionContext) _GetFavoritedFlightsResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetFavoritedFlightsResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getFavoritedFlightsResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetFavoritedFlightsResponse")
+		case "flights":
+
+			out.Values[i] = ec._GetFavoritedFlightsResponse_flights(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var getFlightResponseImplementors = []string{"GetFlightResponse"}
+
+func (ec *executionContext) _GetFlightResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetFlightResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getFlightResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetFlightResponse")
+		case "flight":
+
+			out.Values[i] = ec._GetFlightResponse_flight(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var getPurchasedFlightsResponseImplementors = []string{"GetPurchasedFlightsResponse"}
+
+func (ec *executionContext) _GetPurchasedFlightsResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetPurchasedFlightsResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getPurchasedFlightsResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetPurchasedFlightsResponse")
+		case "flights":
+
+			out.Values[i] = ec._GetPurchasedFlightsResponse_flights(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -3878,6 +4984,98 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getFlight":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getFlight(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getPurchasedFlights":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getPurchasedFlights(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getFavoritedFlights":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getFavoritedFlights(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "recommendFlight":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_recommendFlight(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -3889,6 +5087,31 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var recommendFlightResponseImplementors = []string{"RecommendFlightResponse"}
+
+func (ec *executionContext) _RecommendFlightResponse(ctx context.Context, sel ast.SelectionSet, obj *model.RecommendFlightResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, recommendFlightResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RecommendFlightResponse")
+		case "flights":
+
+			out.Values[i] = ec._RecommendFlightResponse_flights(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -4355,6 +5578,63 @@ func (ec *executionContext) marshalNFlightListResponse2ᚖgithubᚗcomᚋDagosu�
 	return ec._FlightListResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNGetFavoritedFlightsInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFavoritedFlightsInput(ctx context.Context, v interface{}) (model.GetFavoritedFlightsInput, error) {
+	res, err := ec.unmarshalInputGetFavoritedFlightsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetFavoritedFlightsResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFavoritedFlightsResponse(ctx context.Context, sel ast.SelectionSet, v model.GetFavoritedFlightsResponse) graphql.Marshaler {
+	return ec._GetFavoritedFlightsResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetFavoritedFlightsResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFavoritedFlightsResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetFavoritedFlightsResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetFavoritedFlightsResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFlightInput(ctx context.Context, v interface{}) (model.GetFlightInput, error) {
+	res, err := ec.unmarshalInputGetFlightInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetFlightResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFlightResponse(ctx context.Context, sel ast.SelectionSet, v model.GetFlightResponse) graphql.Marshaler {
+	return ec._GetFlightResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetFlightResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetFlightResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetFlightResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetFlightResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetPurchasedFlightsInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetPurchasedFlightsInput(ctx context.Context, v interface{}) (model.GetPurchasedFlightsInput, error) {
+	res, err := ec.unmarshalInputGetPurchasedFlightsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetPurchasedFlightsResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetPurchasedFlightsResponse(ctx context.Context, sel ast.SelectionSet, v model.GetPurchasedFlightsResponse) graphql.Marshaler {
+	return ec._GetPurchasedFlightsResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetPurchasedFlightsResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐGetPurchasedFlightsResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetPurchasedFlightsResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetPurchasedFlightsResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4387,6 +5667,25 @@ func (ec *executionContext) marshalNPurchaseFlightResponse2ᚖgithubᚗcomᚋDag
 		return graphql.Null
 	}
 	return ec._PurchaseFlightResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRecommendFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐRecommendFlightInput(ctx context.Context, v interface{}) (model.RecommendFlightInput, error) {
+	res, err := ec.unmarshalInputRecommendFlightInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRecommendFlightResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐRecommendFlightResponse(ctx context.Context, sel ast.SelectionSet, v model.RecommendFlightResponse) graphql.Marshaler {
+	return ec._RecommendFlightResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRecommendFlightResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐRecommendFlightResponse(ctx context.Context, sel ast.SelectionSet, v *model.RecommendFlightResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RecommendFlightResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSortParamInput2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐSortParamInput(ctx context.Context, v interface{}) (*model.SortParamInput, error) {
@@ -4760,6 +6059,22 @@ func (ec *executionContext) marshalOFlight2ᚖgithubᚗcomᚋDagosuᚋBookingApp
 		return graphql.Null
 	}
 	return ec._Flight(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

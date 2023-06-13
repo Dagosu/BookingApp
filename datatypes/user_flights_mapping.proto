@@ -32,7 +32,34 @@ message FavoriteFlightResponse{
     flight.Flight favorited_flight = 1;
 }
 
+message GetPurchasedFlightsRequest {
+    string user_id = 1;
+}
+
+message GetPurchasedFlightsResponse{
+    repeated flight.Flight flights = 1;
+}
+
+message GetFavoritedFlightsRequest {
+    string user_id = 1;
+}
+
+message GetFavoritedFlightsResponse{
+    repeated flight.Flight flights = 1;
+}
+
+message RecommendFlightRequest {
+    string user_id = 1;
+}
+
+message RecommendFlightResponse {
+    repeated flight.Flight flights = 1;
+}
+
 service UserFlightsMappingService {
     rpc PurchaseFlight(PurchaseFlightRequest) returns (PurchaseFlightResponse);
     rpc FavoriteFlight(FavoriteFlightRequest) returns (FavoriteFlightResponse);
+    rpc GetPurchasedFlights(GetPurchasedFlightsRequest) returns (GetPurchasedFlightsResponse);
+    rpc GetFavoritedFlights(GetFavoritedFlightsRequest) returns (GetFavoritedFlightsResponse);
+    rpc RecommendFlight(RecommendFlightRequest) returns (RecommendFlightResponse);
 }

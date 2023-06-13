@@ -1,10 +1,10 @@
-/* FlightList.css */
-
 .flight-list-container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
 }
 
 .flight-filter-form {
@@ -20,7 +20,7 @@
 }
 
 .flight-filter-submit {
-  background-color: #008CBA; /* Blue */
+  background-color: #008CBA;
   border: none;
   color: white;
   padding: 15px 32px;
@@ -30,6 +30,11 @@
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.flight-filter-submit:hover {
+  background-color: #006994;
 }
 
 .flight-list {
@@ -43,6 +48,11 @@
   border-radius: 4px;
   padding: 10px;
   background-color: #f9f9f9;
+  transition: background-color 0.3s ease;
+}
+
+.flight-item:hover {
+  background-color: #e6e6e6;
 }
 
 .flight-datepicker {
@@ -55,4 +65,14 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
+}
+
+/* CSS for the link */
+.flight-item-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.flight-item-link:hover {
+  text-decoration: none;
 }

@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"context"
 	"regexp"
 	"strconv"
 	"strings"
@@ -64,6 +65,39 @@ func newFlightRepository(d *database.Db) *flightRepository {
 		c:  c,
 		sm: database.NewSubscriptionsMux(c),
 	}
+}
+
+func (fr *flightRepository) Get(ctx context.Context, id string) (*dt.Flight, error) {
+	flight := &dt.Flight{}
+
+	err := fr.c.FindOne(ctx, bson.D{{Key: "_id", Value: id}}).Decode(&flight)
+	if err != nil {
+		return nil, err
+	}
+
+	return flight, nil
+}
+
+func (fr *flightRepository) GetFutureFlights(ctx context.Context) ([]*dt.Flight, error) {
+	var flights []*dt.Flight
+	currentTime := isodate.TimeToGrpcTime(time.Now())
+
+	pipeline := mongo.Pipeline{
+		bson.D{{
+			Key: "$match", Value: bson.D{{
+				Key:   "departure_time",
+				Value: bson.M{"$gt": currentTime},
+			}},
+		}},
+	}
+	qr, err := fr.c.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	err = qr.All(ctx, &flights)
+
+	return flights, err
 }
 
 func (fr *flightRepository) FlightList(req *dt.FlightListRequest, stream dt.FlightService_FlightListServer) error {

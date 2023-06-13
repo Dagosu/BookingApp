@@ -11,4 +11,5 @@ import (
 func RegisterServices(s *grpc.Server, u *usecase.Usecases, d *database.Db) {
 	dt.RegisterFlightServiceServer(s, newFlightServiceServer(u.FlightUsecase))
 	dt.RegisterUserServiceServer(s, newUserServiceServer(u.UserUsecase))
+	dt.RegisterUserFlightsMappingServiceServer(s, newUserFlightsMappingServiceServer(u.UserFlightsMappingUsecase))
 }
