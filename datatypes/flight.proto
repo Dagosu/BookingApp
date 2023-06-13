@@ -23,6 +23,7 @@ message Flight {
     int32 bookable_seats = 7;
     string airline = 8;
     float price = 9;
+    string status  = 10;
 }
 
 message FlightListRequest {

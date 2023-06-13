@@ -64,6 +64,7 @@ type ComplexityRoot struct {
 		DepartureTime func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Price         func(childComplexity int) int
+		Status        func(childComplexity int) int
 		TotalSeats    func(childComplexity int) int
 	}
 
@@ -221,6 +222,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Flight.Price(childComplexity), true
+
+	case "Flight.status":
+		if e.complexity.Flight.Status == nil {
+			break
+		}
+
+		return e.complexity.Flight.Status(childComplexity), true
 
 	case "Flight.totalSeats":
 		if e.complexity.Flight.TotalSeats == nil {
@@ -567,6 +575,7 @@ type Flight {
 	bookableSeats: Int
 	airline: String
 	price: Float
+	status: String
 }
 
 """
@@ -982,6 +991,8 @@ func (ec *executionContext) fieldContext_FavoriteFlightResponse_favoritedFlight(
 				return ec.fieldContext_Flight_airline(ctx, field)
 			case "price":
 				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1373,6 +1384,47 @@ func (ec *executionContext) fieldContext_Flight_price(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Flight_status(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Flight_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Flight",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FlightListResponse_operationType(ctx context.Context, field graphql.CollectedField, obj *model.FlightListResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FlightListResponse_operationType(ctx, field)
 	if err != nil {
@@ -1468,6 +1520,8 @@ func (ec *executionContext) fieldContext_FlightListResponse_flights(ctx context.
 				return ec.fieldContext_Flight_airline(ctx, field)
 			case "price":
 				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1529,6 +1583,8 @@ func (ec *executionContext) fieldContext_GetFavoritedFlightsResponse_flights(ctx
 				return ec.fieldContext_Flight_airline(ctx, field)
 			case "price":
 				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1590,6 +1646,8 @@ func (ec *executionContext) fieldContext_GetFlightResponse_flight(ctx context.Co
 				return ec.fieldContext_Flight_airline(ctx, field)
 			case "price":
 				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1651,6 +1709,8 @@ func (ec *executionContext) fieldContext_GetPurchasedFlightsResponse_flights(ctx
 				return ec.fieldContext_Flight_airline(ctx, field)
 			case "price":
 				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1830,6 +1890,8 @@ func (ec *executionContext) fieldContext_PurchaseFlightResponse_purchasedFlight(
 				return ec.fieldContext_Flight_airline(ctx, field)
 			case "price":
 				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -2317,6 +2379,8 @@ func (ec *executionContext) fieldContext_RecommendFlightResponse_flights(ctx con
 				return ec.fieldContext_Flight_airline(ctx, field)
 			case "price":
 				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -4753,6 +4817,10 @@ func (ec *executionContext) _Flight(ctx context.Context, sel ast.SelectionSet, o
 		case "price":
 
 			out.Values[i] = ec._Flight_price(ctx, field, obj)
+
+		case "status":
+
+			out.Values[i] = ec._Flight_status(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

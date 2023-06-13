@@ -31,7 +31,8 @@ function FlightList() {
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [filter, setFilter] = useState({});
-  const [searchText, setSearchText] = useState("");  // new state variable for search text
+  const [searchText, setSearchText] = useState("");  
+  const [status, setStatus] = useState({ scheduled: false, active: false, arrived: false });
 
   const { loading, error, data } = useSubscription(FLIGHTS_SUBSCRIPTION, {
     variables: {
@@ -40,24 +41,42 @@ function FlightList() {
   });
 
   const onSubmit = (data) => {
+    let filterArray = [
+      {
+        condition: "and",
+        field: "departure_time",
+        operator: "gte",
+        value: Math.floor(startTime.getTime() / 1000),
+      },
+      {
+        condition: "and",
+        field: "departure_time",
+        operator: "lte",
+        value: Math.floor(endTime.getTime() / 1000),
+      }
+    ];
+
+    Object.keys(status).forEach(key => {
+      if (status[key]) {
+        filterArray.push({
+          condition: "or",
+          field: "status",
+          operator: "eq",
+          value: key
+        });
+      }
+    });
+
     setFilter({
-      filter: [
-        {
-          condition: "and",
-          field: "departure_time",
-          operator: "gte",
-          value: Math.floor(startTime.getTime() / 1000),
-        },
-        {
-          condition: "and",
-          field: "departure_time",
-          operator: "lte",
-          value: Math.floor(endTime.getTime() / 1000),
-        },
-      ],
+      filter: filterArray,
       query: searchText,  
     });
   };
+
+  const clearDates = () => {
+    setStartTime(null);
+    setEndTime(null);
+  }
 
   if (loading) return 'Loading...';
   if (error) return `Error! ${error.message}`;
@@ -72,10 +91,23 @@ function FlightList() {
         <label className="flight-filter-label">
           End Time:
           <DatePicker selected={endTime} onChange={date => setEndTime(date)} showTimeSelect dateFormat="Pp" className="flight-datepicker" />
+          <button onClick={clearDates} type="button" className="flight-filter-clear">Clear</button>
         </label>
         <label className="flight-filter-label"> {}
           Search:
           <input type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="flight-search-input" />
+        </label>
+        <label className="checkbox-container">
+          <input type="checkbox" checked={status.scheduled} onChange={(e) => setStatus({ ...status, scheduled: e.target.checked })} />
+          Scheduled
+        </label>
+        <label className="checkbox-container">
+          <input type="checkbox" checked={status.active} onChange={(e) => setStatus({ ...status, active: e.target.checked })} />
+          Active
+        </label>
+        <label className="checkbox-container">
+          <input type="checkbox" checked={status.arrived} onChange={(e) => setStatus({ ...status, arrived: e.target.checked })} />
+          Arrived
         </label>
         <input type="submit" value="Filter" className="flight-filter-submit" />
       </form>

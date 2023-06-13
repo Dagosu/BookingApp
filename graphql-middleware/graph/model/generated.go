@@ -46,6 +46,7 @@ type Flight struct {
 	BookableSeats *int       `json:"bookableSeats,omitempty"`
 	Airline       *string    `json:"airline,omitempty"`
 	Price         *float64   `json:"price,omitempty"`
+	Status        *string    `json:"status,omitempty"`
 }
 
 // Subscription

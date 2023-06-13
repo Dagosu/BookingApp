@@ -20,6 +20,7 @@ func ParseFlight(f *dt.Flight) *model.Flight {
 		BookableSeats: IntRefer(f.GetBookableSeats()),
 		Airline:       StrRefer(f.GetAirline()),
 		Price:         FloatRefer(float64(f.GetPrice())),
+		Status:        StrRefer(f.GetStatus()),
 	}
 }
 

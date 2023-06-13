@@ -82,6 +82,7 @@ type Flight {
 	bookableSeats: Int
 	airline: String
 	price: Float
+	status: String
 }
 
 """

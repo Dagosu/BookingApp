@@ -142,7 +142,8 @@ func (tr *flightRepository) createMatchConditions(req *dt.FlightListRequest) pri
 		search = bson.E{Key: "$or", Value: bson.A{
 			bson.D{{Key: "departure", Value: regex}},
 			bson.D{{Key: "arrival", Value: regex}},
-			bson.D{{Key: "bookable_seats", Value: regex}},
+			bson.D{{Key: "airline", Value: regex}},
+			// bson.D{{Key: "bookable_seats", Value: regex}},
 		}}
 
 		matchConditions = append(matchConditions, search)

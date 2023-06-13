@@ -38,17 +38,13 @@ function Home() {
 
   return (
     <div className="home-container">
-      <h1 className="home-title">Flight List</h1>
+      <RecommendedFlightList flights={data.recommendFlight.flights} />
+      <h1 className="home-title">All Flights</h1>
+      <FlightList />
       <div className="button-group">
         <Link to="/purchased" className="button">Purchased Flights</Link>
         <Link to="/favorites" className="button">Favorite Flights</Link>
       </div>
-      
-      <h2 className="home-title">Recommended Flights</h2>
-      <RecommendedFlightList flights={data.recommendFlight.flights} />
-      
-      <h2 className="home-title">All Flights</h2>
-      <FlightList />
     </div>
   );
 }
