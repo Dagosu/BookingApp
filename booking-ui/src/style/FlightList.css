@@ -128,3 +128,15 @@
 .flight-filter-clear:hover {
   color: var(--secondary-color);
 }
+
+.status-scheduled {
+  color: blue;
+}
+
+.status-active {
+  color: green;
+}
+
+.status-arrived {
+  color: gray;
+}

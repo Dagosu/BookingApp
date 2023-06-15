@@ -7,7 +7,6 @@ import (
 
 	"github.com/Dagosu/BookingApp/booking-api/app/domain"
 	dt "github.com/Dagosu/BookingApp/datatypes"
-	"github.com/k0kubun/pp"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -125,8 +124,6 @@ func (ufmu *userFlightsMappingUsecase) RecommendFlight(ctx context.Context, user
 	if err != nil {
 		return nil, err
 	}
-
-	pp.Println(futureFlights)
 
 	// Exclude flights that the user has already purchased or favorited
 	existingFlights := make(map[string]bool)

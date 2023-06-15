@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../style/FlightList.css';
 import { Link } from 'react-router-dom';
+import { getStatusClass } from './Utils'; 
 
 const FLIGHTS_SUBSCRIPTION = gql`
   subscription ($in: FlightListInput!) {
@@ -21,15 +22,17 @@ const FLIGHTS_SUBSCRIPTION = gql`
           seconds
         }
         bookableSeats
+        price
+        status
       }
     }
   }
 `;
 
 function FlightList() {
-  const { register, handleSubmit } = useForm();
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
+  const { handleSubmit } = useForm();
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
   const [filter, setFilter] = useState({});
   const [searchText, setSearchText] = useState("");  
   const [status, setStatus] = useState({ scheduled: false, active: false, arrived: false });
@@ -41,20 +44,25 @@ function FlightList() {
   });
 
   const onSubmit = (data) => {
-    let filterArray = [
-      {
+    let filterArray = [];
+
+    if (startTime) {
+      filterArray.push({
         condition: "and",
         field: "departure_time",
         operator: "gte",
         value: Math.floor(startTime.getTime() / 1000),
-      },
-      {
+      });
+    }
+
+    if (endTime) {
+      filterArray.push({
         condition: "and",
         field: "departure_time",
         operator: "lte",
         value: Math.floor(endTime.getTime() / 1000),
-      }
-    ];
+      });
+    }
 
     Object.keys(status).forEach(key => {
       if (status[key]) {
@@ -119,6 +127,8 @@ function FlightList() {
           <p>Departure: {flight.departure} at {new Date(flight.departureTime.seconds * 1000).toLocaleString()}</p>
           <p>Arrival: {flight.arrival} at {new Date(flight.arrivalTime.seconds * 1000).toLocaleString()}</p>
           <p>Bookable Seats: {flight.bookableSeats}</p>
+          <p>Price: ${flight.price}</p>
+          <p className={getStatusClass(flight.status)}>Status: {flight.status}</p>
         </div>
       </Link>
       ))}

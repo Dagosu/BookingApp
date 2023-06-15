@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import '../style/RecommendedFlightList.css';
+import { getStatusClass } from './Utils'; 
 
 const RECOMMENDED_FLIGHTS_QUERY = gql`
   query ($in: RecommendFlightInput!) {
@@ -13,6 +14,7 @@ const RECOMMENDED_FLIGHTS_QUERY = gql`
         bookableSeats
         airline
         price
+        status
       }
     }
   }
@@ -43,6 +45,7 @@ function RecommendedFlightList() {
           <p>Bookable Seats: {flight.bookableSeats}</p>
           <p>Airline: {flight.airline}</p>
           <p>Price: ${flight.price}</p>
+          <p className={getStatusClass(flight.status)}>Status: {flight.status}</p>
         </div>
       </Link>
       ))}
