@@ -56,10 +56,20 @@ message RecommendFlightResponse {
     repeated flight.Flight flights = 1;
 }
 
+message CheckFlightPurchaseRequest {
+    string flight_id = 1;
+    string user_id = 2;
+}
+
+message CheckFlightPurchaseResponse{
+    flight.Flight flight = 1;
+}
+
 service UserFlightsMappingService {
     rpc PurchaseFlight(PurchaseFlightRequest) returns (PurchaseFlightResponse);
     rpc FavoriteFlight(FavoriteFlightRequest) returns (FavoriteFlightResponse);
     rpc GetPurchasedFlights(GetPurchasedFlightsRequest) returns (GetPurchasedFlightsResponse);
     rpc GetFavoritedFlights(GetFavoritedFlightsRequest) returns (GetFavoritedFlightsResponse);
     rpc RecommendFlight(RecommendFlightRequest) returns (RecommendFlightResponse);
+    rpc CheckFlightPurchase(CheckFlightPurchaseRequest) returns (CheckFlightPurchaseResponse);
 }

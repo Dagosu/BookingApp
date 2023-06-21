@@ -26,3 +26,11 @@
 .button:hover {
   background-color: #006994;
 }
+
+.button.logout-button {
+  background-color: #f44336; 
+}
+
+.button.logout-button:hover {
+  background-color: #d32f2f; 
+}

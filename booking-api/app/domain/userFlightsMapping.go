@@ -12,6 +12,7 @@ type UserFlightsMappingUsecase interface {
 	GetPurchasedFlights(ctx context.Context, userId string) ([]*dt.Flight, error)
 	GetFavoritedFlights(ctx context.Context, userId string) ([]*dt.Flight, error)
 	RecommendFlight(ctx context.Context, userId string) ([]*dt.Flight, error)
+	CheckFlightPurchase(ctx context.Context, flightId, userId string) (*dt.Flight, error)
 }
 
 type UserFlightsMappingRepository interface {
@@ -19,4 +20,5 @@ type UserFlightsMappingRepository interface {
 	GetByUser(ctx context.Context, userId string) (*dt.UserFlightsMapping, error)
 	AddPurchasedFlight(ctx context.Context, userFlightsId string, flight *dt.Flight) error
 	AddFavoritedFlight(ctx context.Context, userFlightsId string, flight *dt.Flight) error
+	CheckFlightPurchase(ctx context.Context, flightId, userId string) (*dt.Flight, error)
 }

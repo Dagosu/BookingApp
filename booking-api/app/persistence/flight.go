@@ -16,6 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type flightRepository struct {
@@ -98,6 +99,19 @@ func (fr *flightRepository) GetFutureFlights(ctx context.Context) ([]*dt.Flight,
 	err = qr.All(ctx, &flights)
 
 	return flights, err
+}
+
+func (fr *flightRepository) WriteReview(ctx context.Context, flightId, userName string, review *dt.Review) (*dt.Flight, error) {
+	flight := &dt.Flight{}
+	filter := bson.M{"_id": flightId}
+	update := bson.M{"$push": bson.M{"reviews": bson.M{"$each": []*dt.Review{review}, "$position": 0}}}
+
+	err := fr.c.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After)).Decode(&flight)
+	if err != nil {
+		return nil, err
+	}
+
+	return flight, nil
 }
 
 func (fr *flightRepository) FlightList(req *dt.FlightListRequest, stream dt.FlightService_FlightListServer) error {

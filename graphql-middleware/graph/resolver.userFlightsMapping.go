@@ -89,3 +89,17 @@ func (r *queryResolver) resolveRecommendFlight(ctx context.Context, in model.Rec
 		Flights: flights,
 	}, nil
 }
+
+func (r *queryResolver) resolveCheckFlightPurchase(ctx context.Context, in model.CheckFlightPurchaseInput) (*model.CheckFlightPurchaseResponse, error) {
+	res, err := r.server.bookingClient.UserFlightsMappingService.CheckFlightPurchase(ctx, &dt.CheckFlightPurchaseRequest{
+		FlightId: parser.StrDerefer(in.FlightID),
+		UserId:   parser.StrDerefer(in.UserID),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.CheckFlightPurchaseResponse{
+		Flight: parser.ParseFlight(res.Flight),
+	}, nil
+}

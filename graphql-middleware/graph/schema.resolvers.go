@@ -21,6 +21,11 @@ func (r *mutationResolver) FavoriteFlight(ctx context.Context, in model.Favorite
 	return r.resolveFavoriteFlight(ctx, in)
 }
 
+// WriteReview is the resolver for the writeReview field.
+func (r *mutationResolver) WriteReview(ctx context.Context, in model.WriteReviewInput) (*model.WriteReviewResponse, error) {
+	return r.resolveWriteReview(ctx, in)
+}
+
 // CheckCredentials is the resolver for the checkCredentials field.
 func (r *queryResolver) CheckCredentials(ctx context.Context, in model.CheckCredentialsInput) (*model.CheckCredentialsResponse, error) {
 	return r.resolveCheckCredentials(ctx, in)
@@ -44,6 +49,11 @@ func (r *queryResolver) GetFavoritedFlights(ctx context.Context, in model.GetFav
 // RecommendFlight is the resolver for the recommendFlight field.
 func (r *queryResolver) RecommendFlight(ctx context.Context, in model.RecommendFlightInput) (*model.RecommendFlightResponse, error) {
 	return r.resolveRecommendFlight(ctx, in)
+}
+
+// CheckFlightPurchase is the resolver for the checkFlightPurchase field.
+func (r *queryResolver) CheckFlightPurchase(ctx context.Context, in model.CheckFlightPurchaseInput) (*model.CheckFlightPurchaseResponse, error) {
+	return r.resolveCheckFlightPurchase(ctx, in)
 }
 
 // FlightList is the resolver for the flightList field.

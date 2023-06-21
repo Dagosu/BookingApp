@@ -71,3 +71,14 @@ func (ufms *userFlightsMappingServiceServer) RecommendFlight(ctx context.Context
 		Flights: flights,
 	}, nil
 }
+
+func (ufms *userFlightsMappingServiceServer) CheckFlightPurchase(ctx context.Context, req *dt.CheckFlightPurchaseRequest) (*dt.CheckFlightPurchaseResponse, error) {
+	flight, err := ufms.uu.CheckFlightPurchase(ctx, req.GetFlightId(), req.GetUserId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &dt.CheckFlightPurchaseResponse{
+		Flight: flight,
+	}, nil
+}

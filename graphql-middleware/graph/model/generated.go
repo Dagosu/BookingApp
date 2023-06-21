@@ -19,6 +19,15 @@ type CheckCredentialsResponse struct {
 	Authorized *bool   `json:"authorized,omitempty"`
 }
 
+type CheckFlightPurchaseInput struct {
+	FlightID *string `json:"flightId,omitempty"`
+	UserID   *string `json:"userId,omitempty"`
+}
+
+type CheckFlightPurchaseResponse struct {
+	Flight *Flight `json:"flight,omitempty"`
+}
+
 type FavoriteFlightInput struct {
 	UserID   *string `json:"userId,omitempty"`
 	FlightID *string `json:"flightId,omitempty"`
@@ -47,6 +56,7 @@ type Flight struct {
 	Airline       *string    `json:"airline,omitempty"`
 	Price         *float64   `json:"price,omitempty"`
 	Status        *string    `json:"status,omitempty"`
+	Reviews       []*Review  `json:"reviews,omitempty"`
 }
 
 // Subscription
@@ -87,7 +97,7 @@ type GetPurchasedFlightsResponse struct {
 	Flights []*Flight `json:"flights,omitempty"`
 }
 
-// Subscription
+// Mutation
 type PurchaseFlightInput struct {
 	UserID   *string `json:"userId,omitempty"`
 	FlightID *string `json:"flightId,omitempty"`
@@ -103,6 +113,11 @@ type RecommendFlightInput struct {
 
 type RecommendFlightResponse struct {
 	Flights []*Flight `json:"flights,omitempty"`
+}
+
+type Review struct {
+	UserName *string `json:"userName,omitempty"`
+	Text     *string `json:"text,omitempty"`
 }
 
 type SortParamInput struct {
@@ -121,6 +136,16 @@ type Timestamp struct {
 	// that count forward in time. Must be from 0 to 999,999,999
 	// inclusive.
 	Nanos *int `json:"nanos,omitempty"`
+}
+
+type WriteReviewInput struct {
+	FlightID *string `json:"flightId,omitempty"`
+	UserID   *string `json:"userId,omitempty"`
+	Text     *string `json:"text,omitempty"`
+}
+
+type WriteReviewResponse struct {
+	Flight *Flight `json:"flight,omitempty"`
 }
 
 // Objects

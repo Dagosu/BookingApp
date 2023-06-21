@@ -14,7 +14,7 @@ type Usecases struct {
 // NewUsecases returns usecases instantiated with required repositories
 func NewUsecases(r *persistence.Repositories) *Usecases {
 	return &Usecases{
-		FlightUsecase:             newFlightUsecase(r.FlightRepository),
+		FlightUsecase:             newFlightUsecase(r.FlightRepository, r.UserRepository),
 		UserUsecase:               newuserUsecase(r.UserRepository),
 		UserFlightsMappingUsecase: newUserFlightsMappingUsecase(r.UserFlightsMappingRepository, r.UserRepository, r.FlightRepository),
 	}

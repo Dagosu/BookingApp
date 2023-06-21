@@ -95,3 +95,40 @@ func (ufmr *userFlightsMappingRepository) GetPurchasedFlights(ctx context.Contex
 
 	return flights, err
 }
+
+func (ufmr *userFlightsMappingRepository) CheckFlightPurchase(ctx context.Context, flightId, userId string) (*dt.Flight, error) {
+	flight := &dt.Flight{}
+
+	pipeline := mongo.Pipeline{
+		// Match the user ID
+		bson.D{{Key: "$match", Value: bson.D{{Key: "user._id", Value: userId}}}},
+		// Filter the purchased_flights array by flight ID
+		bson.D{{Key: "$match", Value: bson.D{{Key: "purchased_flights._id", Value: flightId}}}},
+		// Project only the matching flight
+		bson.D{{Key: "$project", Value: bson.D{{Key: "flight", Value: bson.M{"$arrayElemAt": []interface{}{"$purchased_flights", 0}}}}}},
+	}
+
+	cursor, err := ufmr.c.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	if cursor.Next(ctx) {
+		var userFlightsMapping struct {
+			Flight dt.Flight `bson:"flight"`
+		}
+
+		err := cursor.Decode(&userFlightsMapping)
+		if err != nil {
+			return nil, err
+		}
+
+		flight = &userFlightsMapping.Flight
+	}
+
+	if flight.GetId() == "" {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	return flight, nil
+}

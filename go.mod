@@ -14,7 +14,6 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/k0kubun/pp v3.0.1+incompatible
 	github.com/prometheus/client_golang v1.15.1
 	github.com/vektah/gqlparser/v2 v2.5.1
 	gitlab.com/airportlabs/gohelpers v0.0.0-20230516083304-a480a2cc1a21
@@ -33,7 +32,6 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
@@ -59,7 +57,6 @@ require (
 
 require (
 	github.com/go-chi/chi v1.5.4
-	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/rs/cors v1.9.0
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
 	google.golang.org/protobuf v1.30.0

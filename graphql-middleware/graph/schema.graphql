@@ -83,6 +83,12 @@ type Flight {
 	airline: String
 	price: Float
 	status: String
+	reviews: [Review]
+}
+
+type Review {
+	userName: String
+	text: String
 }
 
 """
@@ -129,12 +135,23 @@ input GetFlightInput {
 type GetFlightResponse {
 	flight: Flight
 }
+
+input CheckFlightPurchaseInput {
+	flightId: String
+	userId: String
+}
+
+type CheckFlightPurchaseResponse {
+	flight: Flight
+}
+
 type Query {
   	checkCredentials(in: CheckCredentialsInput!): CheckCredentialsResponse!
 	getFlight(in: GetFlightInput!): GetFlightResponse!
 	getPurchasedFlights(in: GetPurchasedFlightsInput!): GetPurchasedFlightsResponse!
 	getFavoritedFlights(in: GetFavoritedFlightsInput!): GetFavoritedFlightsResponse!
 	recommendFlight(in: RecommendFlightInput!): RecommendFlightResponse!
+	checkFlightPurchase(in: CheckFlightPurchaseInput!): CheckFlightPurchaseResponse!
 }
 
 """
@@ -158,7 +175,7 @@ type Subscription {
 }
 
 """
-Subscription
+Mutation
 """
 input PurchaseFlightInput {
 	userId: String
@@ -178,7 +195,18 @@ type FavoriteFlightResponse {
 	favoritedFlight: Flight
 }
 
+input WriteReviewInput {
+	flightId: String
+	userId: String
+	text: String
+}
+
+type WriteReviewResponse {
+	flight: Flight
+}
+
 type Mutation {
 	purchaseFlight(in: PurchaseFlightInput!): PurchaseFlightResponse!
 	favoriteFlight(in: FavoriteFlightInput!): FavoriteFlightResponse!
+	writeReview(in: WriteReviewInput!): WriteReviewResponse!
 }

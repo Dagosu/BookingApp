@@ -66,3 +66,18 @@ func (r *queryResolver) resolveGetFlight(ctx context.Context, in model.GetFlight
 		Flight: parser.ParseFlight(res.GetFlight()),
 	}, nil
 }
+
+func (r *mutationResolver) resolveWriteReview(ctx context.Context, in model.WriteReviewInput) (*model.WriteReviewResponse, error) {
+	res, err := r.server.bookingClient.FlightService.WriteReview(ctx, &dt.WriteReviewRequest{
+		FlightId: parser.StrDerefer(in.FlightID),
+		UserId:   parser.StrDerefer(in.UserID),
+		Text:     parser.StrDerefer(in.Text),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.WriteReviewResponse{
+		Flight: parser.ParseFlight(res.GetFlight()),
+	}, nil
+}

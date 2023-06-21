@@ -31,3 +31,14 @@ func (fs *flightServiceServer) GetFlight(ctx context.Context, req *dt.GetFlightR
 		Flight: flight,
 	}, nil
 }
+
+func (fs *flightServiceServer) WriteReview(ctx context.Context, req *dt.WriteReviewRequest) (*dt.WriteReviewResponse, error) {
+	flight, err := fs.fu.WriteReview(ctx, req.GetFlightId(), req.GetUserId(), req.GetText())
+	if err != nil {
+		return nil, err
+	}
+
+	return &dt.WriteReviewResponse{
+		Flight: flight,
+	}, nil
+}

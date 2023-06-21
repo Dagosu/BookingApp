@@ -27,6 +27,7 @@ type UserFlightsMappingServiceClient interface {
 	GetPurchasedFlights(ctx context.Context, in *GetPurchasedFlightsRequest, opts ...grpc.CallOption) (*GetPurchasedFlightsResponse, error)
 	GetFavoritedFlights(ctx context.Context, in *GetFavoritedFlightsRequest, opts ...grpc.CallOption) (*GetFavoritedFlightsResponse, error)
 	RecommendFlight(ctx context.Context, in *RecommendFlightRequest, opts ...grpc.CallOption) (*RecommendFlightResponse, error)
+	CheckFlightPurchase(ctx context.Context, in *CheckFlightPurchaseRequest, opts ...grpc.CallOption) (*CheckFlightPurchaseResponse, error)
 }
 
 type userFlightsMappingServiceClient struct {
@@ -82,6 +83,15 @@ func (c *userFlightsMappingServiceClient) RecommendFlight(ctx context.Context, i
 	return out, nil
 }
 
+func (c *userFlightsMappingServiceClient) CheckFlightPurchase(ctx context.Context, in *CheckFlightPurchaseRequest, opts ...grpc.CallOption) (*CheckFlightPurchaseResponse, error) {
+	out := new(CheckFlightPurchaseResponse)
+	err := c.cc.Invoke(ctx, "/user_flights_mapping.UserFlightsMappingService/CheckFlightPurchase", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserFlightsMappingServiceServer is the server API for UserFlightsMappingService service.
 // All implementations should embed UnimplementedUserFlightsMappingServiceServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type UserFlightsMappingServiceServer interface {
 	GetPurchasedFlights(context.Context, *GetPurchasedFlightsRequest) (*GetPurchasedFlightsResponse, error)
 	GetFavoritedFlights(context.Context, *GetFavoritedFlightsRequest) (*GetFavoritedFlightsResponse, error)
 	RecommendFlight(context.Context, *RecommendFlightRequest) (*RecommendFlightResponse, error)
+	CheckFlightPurchase(context.Context, *CheckFlightPurchaseRequest) (*CheckFlightPurchaseResponse, error)
 }
 
 // UnimplementedUserFlightsMappingServiceServer should be embedded to have forward compatible implementations.
@@ -111,6 +122,9 @@ func (UnimplementedUserFlightsMappingServiceServer) GetFavoritedFlights(context.
 }
 func (UnimplementedUserFlightsMappingServiceServer) RecommendFlight(context.Context, *RecommendFlightRequest) (*RecommendFlightResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RecommendFlight not implemented")
+}
+func (UnimplementedUserFlightsMappingServiceServer) CheckFlightPurchase(context.Context, *CheckFlightPurchaseRequest) (*CheckFlightPurchaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckFlightPurchase not implemented")
 }
 
 // UnsafeUserFlightsMappingServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -214,6 +228,24 @@ func _UserFlightsMappingService_RecommendFlight_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserFlightsMappingService_CheckFlightPurchase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckFlightPurchaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserFlightsMappingServiceServer).CheckFlightPurchase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user_flights_mapping.UserFlightsMappingService/CheckFlightPurchase",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserFlightsMappingServiceServer).CheckFlightPurchase(ctx, req.(*CheckFlightPurchaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserFlightsMappingService_ServiceDesc is the grpc.ServiceDesc for UserFlightsMappingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -240,6 +272,10 @@ var UserFlightsMappingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RecommendFlight",
 			Handler:    _UserFlightsMappingService_RecommendFlight_Handler,
+		},
+		{
+			MethodName: "CheckFlightPurchase",
+			Handler:    _UserFlightsMappingService_CheckFlightPurchase_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

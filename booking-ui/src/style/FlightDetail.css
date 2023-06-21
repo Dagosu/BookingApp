@@ -1,39 +1,98 @@
+/* FlightDetails.css */
+
 .flight-detail-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80%;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1);
+  background-color: var(--background-dark);
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
 }
 
 .flight-detail {
-  width: 100%;
   margin-bottom: 20px;
 }
 
 .flight-detail-text {
-  font-size: 1.2em;
-  color: #003366;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: var(--primary-color);
 }
 
 .flight-detail-actions {
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  margin-bottom: 20px;
 }
 
 .flight-action-button {
-  background-color: #008CBA; /* Blue */
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
   border: none;
   color: white;
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
+  display: inline-block;
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+}
+
+.flight-action-button:hover {
+  background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+}
+
+.notification {
+  margin-bottom: 20px;
+  padding: 10px;
+  color: white;
+  background-color: green;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.review-form {
+  margin-top: 20px;
+}
+
+.review-input {
+  width: 100%;
+  min-height: 100px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+}
+
+.review-submit-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+}
+
+.review-submit-button:hover {
+  background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+}
+
+.reviews-container {
+  margin-top: 20px;
+}
+
+.review {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  background: var(--background-light);
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
 }

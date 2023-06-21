@@ -51,6 +51,10 @@ type ComplexityRoot struct {
 		UserID     func(childComplexity int) int
 	}
 
+	CheckFlightPurchaseResponse struct {
+		Flight func(childComplexity int) int
+	}
+
 	FavoriteFlightResponse struct {
 		FavoritedFlight func(childComplexity int) int
 	}
@@ -64,6 +68,7 @@ type ComplexityRoot struct {
 		DepartureTime func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Price         func(childComplexity int) int
+		Reviews       func(childComplexity int) int
 		Status        func(childComplexity int) int
 		TotalSeats    func(childComplexity int) int
 	}
@@ -88,6 +93,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		FavoriteFlight func(childComplexity int, in model.FavoriteFlightInput) int
 		PurchaseFlight func(childComplexity int, in model.PurchaseFlightInput) int
+		WriteReview    func(childComplexity int, in model.WriteReviewInput) int
 	}
 
 	PurchaseFlightResponse struct {
@@ -96,6 +102,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		CheckCredentials    func(childComplexity int, in model.CheckCredentialsInput) int
+		CheckFlightPurchase func(childComplexity int, in model.CheckFlightPurchaseInput) int
 		GetFavoritedFlights func(childComplexity int, in model.GetFavoritedFlightsInput) int
 		GetFlight           func(childComplexity int, in model.GetFlightInput) int
 		GetPurchasedFlights func(childComplexity int, in model.GetPurchasedFlightsInput) int
@@ -106,6 +113,11 @@ type ComplexityRoot struct {
 		Flights func(childComplexity int) int
 	}
 
+	Review struct {
+		Text     func(childComplexity int) int
+		UserName func(childComplexity int) int
+	}
+
 	Subscription struct {
 		FlightList func(childComplexity int, in model.FlightListInput) int
 	}
@@ -114,11 +126,16 @@ type ComplexityRoot struct {
 		Nanos   func(childComplexity int) int
 		Seconds func(childComplexity int) int
 	}
+
+	WriteReviewResponse struct {
+		Flight func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
 	PurchaseFlight(ctx context.Context, in model.PurchaseFlightInput) (*model.PurchaseFlightResponse, error)
 	FavoriteFlight(ctx context.Context, in model.FavoriteFlightInput) (*model.FavoriteFlightResponse, error)
+	WriteReview(ctx context.Context, in model.WriteReviewInput) (*model.WriteReviewResponse, error)
 }
 type QueryResolver interface {
 	CheckCredentials(ctx context.Context, in model.CheckCredentialsInput) (*model.CheckCredentialsResponse, error)
@@ -126,6 +143,7 @@ type QueryResolver interface {
 	GetPurchasedFlights(ctx context.Context, in model.GetPurchasedFlightsInput) (*model.GetPurchasedFlightsResponse, error)
 	GetFavoritedFlights(ctx context.Context, in model.GetFavoritedFlightsInput) (*model.GetFavoritedFlightsResponse, error)
 	RecommendFlight(ctx context.Context, in model.RecommendFlightInput) (*model.RecommendFlightResponse, error)
+	CheckFlightPurchase(ctx context.Context, in model.CheckFlightPurchaseInput) (*model.CheckFlightPurchaseResponse, error)
 }
 type SubscriptionResolver interface {
 	FlightList(ctx context.Context, in model.FlightListInput) (<-chan *model.FlightListResponse, error)
@@ -159,6 +177,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CheckCredentialsResponse.UserID(childComplexity), true
+
+	case "CheckFlightPurchaseResponse.flight":
+		if e.complexity.CheckFlightPurchaseResponse.Flight == nil {
+			break
+		}
+
+		return e.complexity.CheckFlightPurchaseResponse.Flight(childComplexity), true
 
 	case "FavoriteFlightResponse.favoritedFlight":
 		if e.complexity.FavoriteFlightResponse.FavoritedFlight == nil {
@@ -222,6 +247,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Flight.Price(childComplexity), true
+
+	case "Flight.reviews":
+		if e.complexity.Flight.Reviews == nil {
+			break
+		}
+
+		return e.complexity.Flight.Reviews(childComplexity), true
 
 	case "Flight.status":
 		if e.complexity.Flight.Status == nil {
@@ -296,6 +328,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.PurchaseFlight(childComplexity, args["in"].(model.PurchaseFlightInput)), true
 
+	case "Mutation.writeReview":
+		if e.complexity.Mutation.WriteReview == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_writeReview_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.WriteReview(childComplexity, args["in"].(model.WriteReviewInput)), true
+
 	case "PurchaseFlightResponse.purchasedFlight":
 		if e.complexity.PurchaseFlightResponse.PurchasedFlight == nil {
 			break
@@ -314,6 +358,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.CheckCredentials(childComplexity, args["in"].(model.CheckCredentialsInput)), true
+
+	case "Query.checkFlightPurchase":
+		if e.complexity.Query.CheckFlightPurchase == nil {
+			break
+		}
+
+		args, err := ec.field_Query_checkFlightPurchase_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CheckFlightPurchase(childComplexity, args["in"].(model.CheckFlightPurchaseInput)), true
 
 	case "Query.getFavoritedFlights":
 		if e.complexity.Query.GetFavoritedFlights == nil {
@@ -370,6 +426,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RecommendFlightResponse.Flights(childComplexity), true
 
+	case "Review.text":
+		if e.complexity.Review.Text == nil {
+			break
+		}
+
+		return e.complexity.Review.Text(childComplexity), true
+
+	case "Review.userName":
+		if e.complexity.Review.UserName == nil {
+			break
+		}
+
+		return e.complexity.Review.UserName(childComplexity), true
+
 	case "Subscription.flightList":
 		if e.complexity.Subscription.FlightList == nil {
 			break
@@ -396,6 +466,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Timestamp.Seconds(childComplexity), true
 
+	case "WriteReviewResponse.flight":
+		if e.complexity.WriteReviewResponse.Flight == nil {
+			break
+		}
+
+		return e.complexity.WriteReviewResponse.Flight(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -405,6 +482,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCheckCredentialsInput,
+		ec.unmarshalInputCheckFlightPurchaseInput,
 		ec.unmarshalInputFavoriteFlightInput,
 		ec.unmarshalInputFilterParamInput,
 		ec.unmarshalInputFlightListInput,
@@ -414,6 +492,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPurchaseFlightInput,
 		ec.unmarshalInputRecommendFlightInput,
 		ec.unmarshalInputSortParamInput,
+		ec.unmarshalInputWriteReviewInput,
 	)
 	first := true
 
@@ -576,6 +655,12 @@ type Flight {
 	airline: String
 	price: Float
 	status: String
+	reviews: [Review]
+}
+
+type Review {
+	userName: String
+	text: String
 }
 
 """
@@ -622,12 +707,23 @@ input GetFlightInput {
 type GetFlightResponse {
 	flight: Flight
 }
+
+input CheckFlightPurchaseInput {
+	flightId: String
+	userId: String
+}
+
+type CheckFlightPurchaseResponse {
+	flight: Flight
+}
+
 type Query {
   	checkCredentials(in: CheckCredentialsInput!): CheckCredentialsResponse!
 	getFlight(in: GetFlightInput!): GetFlightResponse!
 	getPurchasedFlights(in: GetPurchasedFlightsInput!): GetPurchasedFlightsResponse!
 	getFavoritedFlights(in: GetFavoritedFlightsInput!): GetFavoritedFlightsResponse!
 	recommendFlight(in: RecommendFlightInput!): RecommendFlightResponse!
+	checkFlightPurchase(in: CheckFlightPurchaseInput!): CheckFlightPurchaseResponse!
 }
 
 """
@@ -651,7 +747,7 @@ type Subscription {
 }
 
 """
-Subscription
+Mutation
 """
 input PurchaseFlightInput {
 	userId: String
@@ -671,9 +767,20 @@ type FavoriteFlightResponse {
 	favoritedFlight: Flight
 }
 
+input WriteReviewInput {
+	flightId: String
+	userId: String
+	text: String
+}
+
+type WriteReviewResponse {
+	flight: Flight
+}
+
 type Mutation {
 	purchaseFlight(in: PurchaseFlightInput!): PurchaseFlightResponse!
 	favoriteFlight(in: FavoriteFlightInput!): FavoriteFlightResponse!
+	writeReview(in: WriteReviewInput!): WriteReviewResponse!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -712,6 +819,21 @@ func (ec *executionContext) field_Mutation_purchaseFlight_args(ctx context.Conte
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_writeReview_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.WriteReviewInput
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNWriteReviewInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐWriteReviewInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -734,6 +856,21 @@ func (ec *executionContext) field_Query_checkCredentials_args(ctx context.Contex
 	if tmp, ok := rawArgs["in"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
 		arg0, err = ec.unmarshalNCheckCredentialsInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckCredentialsInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_checkFlightPurchase_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CheckFlightPurchaseInput
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNCheckFlightPurchaseInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckFlightPurchaseInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -937,6 +1074,71 @@ func (ec *executionContext) fieldContext_CheckCredentialsResponse_authorized(ctx
 	return fc, nil
 }
 
+func (ec *executionContext) _CheckFlightPurchaseResponse_flight(ctx context.Context, field graphql.CollectedField, obj *model.CheckFlightPurchaseResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CheckFlightPurchaseResponse_flight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Flight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlight(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CheckFlightPurchaseResponse_flight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CheckFlightPurchaseResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FavoriteFlightResponse_favoritedFlight(ctx context.Context, field graphql.CollectedField, obj *model.FavoriteFlightResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FavoriteFlightResponse_favoritedFlight(ctx, field)
 	if err != nil {
@@ -993,6 +1195,8 @@ func (ec *executionContext) fieldContext_FavoriteFlightResponse_favoritedFlight(
 				return ec.fieldContext_Flight_price(ctx, field)
 			case "status":
 				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1425,6 +1629,53 @@ func (ec *executionContext) fieldContext_Flight_status(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Flight_reviews(ctx context.Context, field graphql.CollectedField, obj *model.Flight) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Flight_reviews(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reviews, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Review)
+	fc.Result = res
+	return ec.marshalOReview2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐReview(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Flight_reviews(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Flight",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "userName":
+				return ec.fieldContext_Review_userName(ctx, field)
+			case "text":
+				return ec.fieldContext_Review_text(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Review", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FlightListResponse_operationType(ctx context.Context, field graphql.CollectedField, obj *model.FlightListResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FlightListResponse_operationType(ctx, field)
 	if err != nil {
@@ -1522,6 +1773,8 @@ func (ec *executionContext) fieldContext_FlightListResponse_flights(ctx context.
 				return ec.fieldContext_Flight_price(ctx, field)
 			case "status":
 				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1585,6 +1838,8 @@ func (ec *executionContext) fieldContext_GetFavoritedFlightsResponse_flights(ctx
 				return ec.fieldContext_Flight_price(ctx, field)
 			case "status":
 				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1648,6 +1903,8 @@ func (ec *executionContext) fieldContext_GetFlightResponse_flight(ctx context.Co
 				return ec.fieldContext_Flight_price(ctx, field)
 			case "status":
 				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1711,6 +1968,8 @@ func (ec *executionContext) fieldContext_GetPurchasedFlightsResponse_flights(ctx
 				return ec.fieldContext_Flight_price(ctx, field)
 			case "status":
 				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -1836,6 +2095,65 @@ func (ec *executionContext) fieldContext_Mutation_favoriteFlight(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_writeReview(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_writeReview(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().WriteReview(rctx, fc.Args["in"].(model.WriteReviewInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.WriteReviewResponse)
+	fc.Result = res
+	return ec.marshalNWriteReviewResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐWriteReviewResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_writeReview(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "flight":
+				return ec.fieldContext_WriteReviewResponse_flight(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WriteReviewResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_writeReview_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PurchaseFlightResponse_purchasedFlight(ctx context.Context, field graphql.CollectedField, obj *model.PurchaseFlightResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PurchaseFlightResponse_purchasedFlight(ctx, field)
 	if err != nil {
@@ -1892,6 +2210,8 @@ func (ec *executionContext) fieldContext_PurchaseFlightResponse_purchasedFlight(
 				return ec.fieldContext_Flight_price(ctx, field)
 			case "status":
 				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
@@ -2196,6 +2516,65 @@ func (ec *executionContext) fieldContext_Query_recommendFlight(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_checkFlightPurchase(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_checkFlightPurchase(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CheckFlightPurchase(rctx, fc.Args["in"].(model.CheckFlightPurchaseInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CheckFlightPurchaseResponse)
+	fc.Result = res
+	return ec.marshalNCheckFlightPurchaseResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckFlightPurchaseResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_checkFlightPurchase(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "flight":
+				return ec.fieldContext_CheckFlightPurchaseResponse_flight(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CheckFlightPurchaseResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_checkFlightPurchase_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -2381,8 +2760,92 @@ func (ec *executionContext) fieldContext_RecommendFlightResponse_flights(ctx con
 				return ec.fieldContext_Flight_price(ctx, field)
 			case "status":
 				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Review_userName(ctx context.Context, field graphql.CollectedField, obj *model.Review) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Review_userName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Review_userName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Review",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Review_text(ctx context.Context, field graphql.CollectedField, obj *model.Review) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Review_text(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Text, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Review_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Review",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2540,6 +3003,71 @@ func (ec *executionContext) fieldContext_Timestamp_nanos(ctx context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WriteReviewResponse_flight(ctx context.Context, field graphql.CollectedField, obj *model.WriteReviewResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WriteReviewResponse_flight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Flight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Flight)
+	fc.Result = res
+	return ec.marshalOFlight2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFlight(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WriteReviewResponse_flight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WriteReviewResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Flight_id(ctx, field)
+			case "departure":
+				return ec.fieldContext_Flight_departure(ctx, field)
+			case "departureTime":
+				return ec.fieldContext_Flight_departureTime(ctx, field)
+			case "arrival":
+				return ec.fieldContext_Flight_arrival(ctx, field)
+			case "arrivalTime":
+				return ec.fieldContext_Flight_arrivalTime(ctx, field)
+			case "totalSeats":
+				return ec.fieldContext_Flight_totalSeats(ctx, field)
+			case "bookableSeats":
+				return ec.fieldContext_Flight_bookableSeats(ctx, field)
+			case "airline":
+				return ec.fieldContext_Flight_airline(ctx, field)
+			case "price":
+				return ec.fieldContext_Flight_price(ctx, field)
+			case "status":
+				return ec.fieldContext_Flight_status(ctx, field)
+			case "reviews":
+				return ec.fieldContext_Flight_reviews(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Flight", field.Name)
 		},
 	}
 	return fc, nil
@@ -4356,6 +4884,44 @@ func (ec *executionContext) unmarshalInputCheckCredentialsInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCheckFlightPurchaseInput(ctx context.Context, obj interface{}) (model.CheckFlightPurchaseInput, error) {
+	var it model.CheckFlightPurchaseInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"flightId", "userId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "flightId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("flightId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FlightID = data
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFavoriteFlightInput(ctx context.Context, obj interface{}) (model.FavoriteFlightInput, error) {
 	var it model.FavoriteFlightInput
 	asMap := map[string]interface{}{}
@@ -4707,6 +5273,53 @@ func (ec *executionContext) unmarshalInputSortParamInput(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputWriteReviewInput(ctx context.Context, obj interface{}) (model.WriteReviewInput, error) {
+	var it model.WriteReviewInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"flightId", "userId", "text"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "flightId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("flightId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FlightID = data
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		case "text":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Text = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4732,6 +5345,31 @@ func (ec *executionContext) _CheckCredentialsResponse(ctx context.Context, sel a
 		case "authorized":
 
 			out.Values[i] = ec._CheckCredentialsResponse_authorized(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var checkFlightPurchaseResponseImplementors = []string{"CheckFlightPurchaseResponse"}
+
+func (ec *executionContext) _CheckFlightPurchaseResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CheckFlightPurchaseResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, checkFlightPurchaseResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CheckFlightPurchaseResponse")
+		case "flight":
+
+			out.Values[i] = ec._CheckFlightPurchaseResponse_flight(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -4821,6 +5459,10 @@ func (ec *executionContext) _Flight(ctx context.Context, sel ast.SelectionSet, o
 		case "status":
 
 			out.Values[i] = ec._Flight_status(ctx, field, obj)
+
+		case "reviews":
+
+			out.Values[i] = ec._Flight_reviews(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -4969,6 +5611,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_favoriteFlight(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "writeReview":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_writeReview(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -5144,6 +5795,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "checkFlightPurchase":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_checkFlightPurchase(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -5180,6 +5854,35 @@ func (ec *executionContext) _RecommendFlightResponse(ctx context.Context, sel as
 		case "flights":
 
 			out.Values[i] = ec._RecommendFlightResponse_flights(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var reviewImplementors = []string{"Review"}
+
+func (ec *executionContext) _Review(ctx context.Context, sel ast.SelectionSet, obj *model.Review) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reviewImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Review")
+		case "userName":
+
+			out.Values[i] = ec._Review_userName(ctx, field, obj)
+
+		case "text":
+
+			out.Values[i] = ec._Review_text(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -5229,6 +5932,31 @@ func (ec *executionContext) _Timestamp(ctx context.Context, sel ast.SelectionSet
 		case "nanos":
 
 			out.Values[i] = ec._Timestamp_nanos(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var writeReviewResponseImplementors = []string{"WriteReviewResponse"}
+
+func (ec *executionContext) _WriteReviewResponse(ctx context.Context, sel ast.SelectionSet, obj *model.WriteReviewResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, writeReviewResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WriteReviewResponse")
+		case "flight":
+
+			out.Values[i] = ec._WriteReviewResponse_flight(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -5593,6 +6321,25 @@ func (ec *executionContext) marshalNCheckCredentialsResponse2ᚖgithubᚗcomᚋD
 	return ec._CheckCredentialsResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNCheckFlightPurchaseInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckFlightPurchaseInput(ctx context.Context, v interface{}) (model.CheckFlightPurchaseInput, error) {
+	res, err := ec.unmarshalInputCheckFlightPurchaseInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCheckFlightPurchaseResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckFlightPurchaseResponse(ctx context.Context, sel ast.SelectionSet, v model.CheckFlightPurchaseResponse) graphql.Marshaler {
+	return ec._CheckFlightPurchaseResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCheckFlightPurchaseResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐCheckFlightPurchaseResponse(ctx context.Context, sel ast.SelectionSet, v *model.CheckFlightPurchaseResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CheckFlightPurchaseResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNFavoriteFlightInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐFavoriteFlightInput(ctx context.Context, v interface{}) (model.FavoriteFlightInput, error) {
 	res, err := ec.unmarshalInputFavoriteFlightInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5774,6 +6521,25 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNWriteReviewInput2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐWriteReviewInput(ctx context.Context, v interface{}) (model.WriteReviewInput, error) {
+	res, err := ec.unmarshalInputWriteReviewInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNWriteReviewResponse2githubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐWriteReviewResponse(ctx context.Context, sel ast.SelectionSet, v model.WriteReviewResponse) graphql.Marshaler {
+	return ec._WriteReviewResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWriteReviewResponse2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐWriteReviewResponse(ctx context.Context, sel ast.SelectionSet, v *model.WriteReviewResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WriteReviewResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -6175,6 +6941,54 @@ func (ec *executionContext) marshalOOperationType2ᚖgithubᚗcomᚋDagosuᚋBoo
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) marshalOReview2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐReview(ctx context.Context, sel ast.SelectionSet, v []*model.Review) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOReview2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐReview(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOReview2ᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐReview(ctx context.Context, sel ast.SelectionSet, v *model.Review) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Review(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSortParamInput2ᚕᚖgithubᚗcomᚋDagosuᚋBookingAppᚋgraphqlᚑmiddlewareᚋgraphᚋmodelᚐSortParamInputᚄ(ctx context.Context, v interface{}) ([]*model.SortParamInput, error) {

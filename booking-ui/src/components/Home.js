@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import { Navigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import FlightList from './FlightList';
 import RecommendedFlightList from './RecommendedFlightList';
@@ -22,7 +22,8 @@ const RECOMMENDED_FLIGHTS_QUERY = gql`
 `;
 
 function Home() {
-  const { userId } = useContext(AuthContext);
+  const { userId, setIsLoggedIn, setUserId } = useContext(AuthContext);
+  const navigate = useNavigate();
   
   const { loading, error, data } = useQuery(RECOMMENDED_FLIGHTS_QUERY, {
     variables: {
@@ -32,6 +33,14 @@ function Home() {
     },
     fetchPolicy: 'network-only' 
   });
+
+  const logout = () => {
+    setIsLoggedIn(false);
+    setUserId(null);
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userId');
+    navigate('/login');
+  };
 
   if (loading) return 'Loading...';
   if (error) return `Error! ${error.message}`;
@@ -44,6 +53,7 @@ function Home() {
       <div className="button-group">
         <Link to="/purchased" className="button">Purchased Flights</Link>
         <Link to="/favorites" className="button">Favorite Flights</Link>
+        <button onClick={logout} className="button logout-button">Log Out</button> 
       </div>
     </div>
   );

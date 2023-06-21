@@ -21,7 +21,20 @@ func ParseFlight(f *dt.Flight) *model.Flight {
 		Airline:       StrRefer(f.GetAirline()),
 		Price:         FloatRefer(float64(f.GetPrice())),
 		Status:        StrRefer(f.GetStatus()),
+		Reviews:       ParseReviews(f.GetReviews()),
 	}
+}
+
+func ParseReviews(in []*dt.Review) []*model.Review {
+	out := make([]*model.Review, 0, len(in))
+	for _, r := range in {
+		out = append(out, &model.Review{
+			UserName: StrRefer(r.UserName),
+			Text:     StrRefer(r.Text),
+		})
+	}
+
+	return out
 }
 
 func ParseSort(in []*model.SortParamInput) []*dt.SortParam {

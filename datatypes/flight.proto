@@ -4,7 +4,6 @@ package flight;
 
 import "google/protobuf/timestamp.proto";
 import "operation.proto";
-import "user.proto";
 
 option go_package = "github.com/Dagosu/BookingApp/datatypes";
 
@@ -89,7 +88,7 @@ message WriteReviewRequest {
 }
 
 message WriteReviewResponse {
-    
+    Flight flight = 1;
 }
 
 service FlightService {

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"time"
 
@@ -34,6 +35,13 @@ func (ufmu *userFlightsMappingUsecase) PurchaseFlight(ctx context.Context, userI
 	userFlights, err := ufmu.ufmr.GetByUser(ctx, user.GetId())
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, err
+	}
+
+	// Check for purchased flights
+	for _, f := range userFlights.GetPurchasedFlights() {
+		if f.GetId() == flightId {
+			return nil, fmt.Errorf("You already purchased this flight!")
+		}
 	}
 
 	if err == mongo.ErrNoDocuments {
@@ -112,6 +120,19 @@ func (ufmu *userFlightsMappingUsecase) GetFavoritedFlights(ctx context.Context, 
 	}
 
 	return flights, nil
+}
+
+func (ufmu *userFlightsMappingUsecase) CheckFlightPurchase(ctx context.Context, flightId, userId string) (*dt.Flight, error) {
+	flight, err := ufmu.ufmr.CheckFlightPurchase(ctx, flightId, userId)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return flight, nil
 }
 
 func (ufmu *userFlightsMappingUsecase) RecommendFlight(ctx context.Context, userId string) ([]*dt.Flight, error) {

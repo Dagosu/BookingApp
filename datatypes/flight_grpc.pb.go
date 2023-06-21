@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type FlightServiceClient interface {
 	FlightList(ctx context.Context, in *FlightListRequest, opts ...grpc.CallOption) (FlightService_FlightListClient, error)
 	GetFlight(ctx context.Context, in *GetFlightRequest, opts ...grpc.CallOption) (*GetFlightResponse, error)
+	WriteReview(ctx context.Context, in *WriteReviewRequest, opts ...grpc.CallOption) (*WriteReviewResponse, error)
 }
 
 type flightServiceClient struct {
@@ -75,12 +76,22 @@ func (c *flightServiceClient) GetFlight(ctx context.Context, in *GetFlightReques
 	return out, nil
 }
 
+func (c *flightServiceClient) WriteReview(ctx context.Context, in *WriteReviewRequest, opts ...grpc.CallOption) (*WriteReviewResponse, error) {
+	out := new(WriteReviewResponse)
+	err := c.cc.Invoke(ctx, "/flight.FlightService/WriteReview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FlightServiceServer is the server API for FlightService service.
 // All implementations should embed UnimplementedFlightServiceServer
 // for forward compatibility
 type FlightServiceServer interface {
 	FlightList(*FlightListRequest, FlightService_FlightListServer) error
 	GetFlight(context.Context, *GetFlightRequest) (*GetFlightResponse, error)
+	WriteReview(context.Context, *WriteReviewRequest) (*WriteReviewResponse, error)
 }
 
 // UnimplementedFlightServiceServer should be embedded to have forward compatible implementations.
@@ -92,6 +103,9 @@ func (UnimplementedFlightServiceServer) FlightList(*FlightListRequest, FlightSer
 }
 func (UnimplementedFlightServiceServer) GetFlight(context.Context, *GetFlightRequest) (*GetFlightResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFlight not implemented")
+}
+func (UnimplementedFlightServiceServer) WriteReview(context.Context, *WriteReviewRequest) (*WriteReviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WriteReview not implemented")
 }
 
 // UnsafeFlightServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -144,6 +158,24 @@ func _FlightService_GetFlight_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FlightService_WriteReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WriteReviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FlightServiceServer).WriteReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/flight.FlightService/WriteReview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FlightServiceServer).WriteReview(ctx, req.(*WriteReviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FlightService_ServiceDesc is the grpc.ServiceDesc for FlightService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -154,6 +186,10 @@ var FlightService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFlight",
 			Handler:    _FlightService_GetFlight_Handler,
+		},
+		{
+			MethodName: "WriteReview",
+			Handler:    _FlightService_WriteReview_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
