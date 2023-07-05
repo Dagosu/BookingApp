@@ -140,3 +140,116 @@
 .status-arrived {
   color: gray;
 }
+
+.dropdown-container,
+.input-field-container {
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+}
+
+/* The dropdown styles, feel free to replace this with your dropdown component's styles */
+.dropdown-container select {
+  margin-top: 10px;
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  width: 100%;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.input-field-container input {
+  margin-top: 10px;
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  width: 100%;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+}
+
+.field-actions {
+  display: flex;
+  margin: 10px 0;
+}
+
+.field-action-button {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--primary-color);
+  padding: 5px 10px;
+  margin-right: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+}
+
+.field-action-button:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.field-action-button:disabled {
+  color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+.open-modal-button {
+  background-color: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+}
+
+.open-modal-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.modal {
+  display: block;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close-button {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}

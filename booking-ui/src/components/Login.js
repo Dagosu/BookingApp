@@ -20,7 +20,7 @@ function Login() {
   const [password, setPassword] = React.useState('');
   const [loginError, setLoginError] = React.useState('');
 
-  const [checkCredentials, { loading, error, data }] = useLazyQuery(CHECK_CREDENTIALS, {
+  const [checkCredentials, { loading }] = useLazyQuery(CHECK_CREDENTIALS, {
     onError: (err) => {
       // Handle login errors
       if (err.message === 'rpc error: code = Unknown desc = Invalid credentials!') {

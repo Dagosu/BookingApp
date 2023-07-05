@@ -7,6 +7,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '../style/FlightList.css';
 import { Link } from 'react-router-dom';
 import { getStatusClass } from './Utils'; 
+import '../style/Modal.css';
+import ManageFilterModal from './ManageFilterModal';
 
 const FLIGHTS_SUBSCRIPTION = gql`
   subscription ($in: FlightListInput!) {
@@ -29,6 +31,8 @@ const FLIGHTS_SUBSCRIPTION = gql`
   }
 `;
 
+const filterableFields = ['departure', 'arrival', 'airline'];
+
 function FlightList() {
   const { handleSubmit } = useForm();
   const [startTime, setStartTime] = useState(null);
@@ -36,16 +40,18 @@ function FlightList() {
   const [filter, setFilter] = useState({});
   const [searchText, setSearchText] = useState("");  
   const [status, setStatus] = useState({ scheduled: false, active: false, arrived: false });
+  const [fields, setFields] = useState([{ field: '', value: '' }]);
+  const [modalIsOpen, setModalIsOpen] = useState(false); 
 
   const { loading, error, data } = useSubscription(FLIGHTS_SUBSCRIPTION, {
     variables: {
       in: filter,
     },
   });
-
+  
   const onSubmit = (data) => {
     let filterArray = [];
-
+    
     if (startTime) {
       filterArray.push({
         condition: "and",
@@ -75,6 +81,17 @@ function FlightList() {
       }
     });
 
+    fields.forEach(({ field, value }) => {
+      if (field && value) {
+        filterArray.push({
+          condition: "and",
+          field,
+          operator: "eq",
+          value,
+        });
+      }
+    });
+
     setFilter({
       filter: filterArray,
       query: searchText,  
@@ -85,6 +102,14 @@ function FlightList() {
     setStartTime(null);
     setEndTime(null);
   }
+
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
 
   if (loading) return 'Loading...';
   if (error) return `Error! ${error.message}`;
@@ -101,6 +126,14 @@ function FlightList() {
           <DatePicker selected={endTime} onChange={date => setEndTime(date)} showTimeSelect dateFormat="Pp" className="flight-datepicker" />
           <button onClick={clearDates} type="button" className="flight-filter-clear">Clear</button>
         </label>
+        <button type="button" onClick={openModal} className="flight-filter-manage">Manage filter options</button>
+        <ManageFilterModal 
+            isOpen={modalIsOpen} 
+            onRequestClose={closeModal} 
+            fields={fields} 
+            setFields={setFields} 
+            filterableFields={filterableFields}
+        />
         <label className="flight-filter-label"> {}
           Search:
           <input type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="flight-search-input" />
@@ -119,7 +152,6 @@ function FlightList() {
         </label>
         <input type="submit" value="Filter" className="flight-filter-submit" />
       </form>
-
       <div className="flight-list">
       {data && data.flightList && data.flightList.flights.map((flight) => (
         <Link to={`/flight/${flight.id}`} key={flight.id} className="flight-item-link">
