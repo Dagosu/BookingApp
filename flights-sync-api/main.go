@@ -26,7 +26,7 @@ func main() {
 	defer client.Disconnect(ctx)
 
 	// Create a ticker to call updateFlightStatus every 5 minutes
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	quit := make(chan struct{})
 
 	fmt.Println("Starting sync api")

@@ -227,7 +227,7 @@ func calculateScore(userProfile map[string]float64, flight *dt.Flight) float64 {
 		flight.Arrival:                           1,
 		timeOfDay(flight.DepartureTime.AsTime()): 0.2,
 		timeOfDay(flight.ArrivalTime.AsTime()):   0.2,
-		flight.Arrival:                           0.5,
+		flight.Airline:                           0.5,
 		priceBucket(float64(flight.Price)):       0.8,
 	}
 	for feature, weight := range weights {

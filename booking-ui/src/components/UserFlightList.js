@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { AuthContext } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { getStatusClass } from './Utils';
 import '../style/UserFlightList.css'; 
 
 const GET_PURCHASED_FLIGHTS = gql`
@@ -10,8 +11,22 @@ const GET_PURCHASED_FLIGHTS = gql`
       flights {
         id
         departure
+        departureTime {
+          seconds
+        }
         arrival
+        arrivalTime {
+          seconds
+        }
+        totalSeats
         bookableSeats
+        airline
+        price
+        reviews {
+          userName
+          text
+        }
+        status
       }
     }
   }
@@ -54,9 +69,12 @@ function UserFlightList({ type }) {
         {flightList && flightList.flights.map((flight) => (
           <Link to={`/flight/${flight.id}`} key={flight.id} className="user-flight-item-link">
             <div className="user-flight-item">
-              <p>Departure: {flight.departure}</p>
-              <p>Arrival: {flight.arrival}</p>
-              <p>Bookable Seats: {flight.bookableSeats}</p>
+            <p>Departure: {flight.departure} at {new Date(flight.departureTime.seconds * 1000).toLocaleString()}</p>
+            <p>Arrival: {flight.arrival} at {new Date(flight.arrivalTime.seconds * 1000).toLocaleString()}</p>
+            <p>Airline: {flight.airline} </p>
+            <p>Bookable Seats: {flight.bookableSeats}</p>
+            <p>Price: ${flight.price}</p>
+            <p className={getStatusClass(flight.status)}>Status: {flight.status}</p>
             </div>
           </Link>
         ))}

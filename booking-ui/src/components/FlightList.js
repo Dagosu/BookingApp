@@ -19,10 +19,11 @@ const FLIGHTS_SUBSCRIPTION = gql`
         departureTime {
           seconds
         }
-        arrival
+        arrival 
         arrivalTime {
           seconds
         }
+        airline
         bookableSeats
         price
         status
@@ -205,6 +206,7 @@ function FlightList() {
         <div className="flight-item">
           <p>Departure: {flight.departure} at {new Date(flight.departureTime.seconds * 1000).toLocaleString()}</p>
           <p>Arrival: {flight.arrival} at {new Date(flight.arrivalTime.seconds * 1000).toLocaleString()}</p>
+          <p>Airline: {flight.airline} </p>
           <p>Bookable Seats: {flight.bookableSeats}</p>
           <p>Price: ${flight.price}</p>
           <p className={getStatusClass(flight.status)}>Status: {flight.status}</p>
