@@ -22,12 +22,14 @@
 .flight-filter-form {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 1px;
 }
 
 .flight-filter-label {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 10px; 
+}
+
+.flight-filter-label label {
   margin-right: 10px;
 }
 
@@ -35,11 +37,11 @@
   background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 10px 20px; /* Adjust size as desired */
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 14px; /* Adjust size as desired */
   margin: 4px 2px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -74,6 +76,15 @@
 
 .flight-datepicker {
   margin-top: 10px;
+}
+
+.flight-price-input {  
+  margin-top: 1px;
+  padding: 10px 100x;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  width: 100%;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
 }
 
 .flight-search-input {  
@@ -113,11 +124,11 @@
   background: none;
   border: none;
   color: var(--primary-color);
-  padding: 15px 32px;
+  padding: 5px 10px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 12px;
   margin: 4px 2px;
   cursor: pointer;
   transition: color 0.3s ease;
@@ -252,4 +263,50 @@
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.button-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  top: -50%; /* Adjust as needed */
+}
+
+.flight-filter-manage {
+  background: linear-gradient(45deg, #BDC3C7, #7F8C8D); /* Adjust colors as desired */
+  border: none;
+  color: white;
+  padding: 5px 10px; /* Adjust size as desired */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px; /* Adjust size as desired */
+  margin: 4px 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+}
+
+.flight-filter-manage:hover {
+  background: linear-gradient(45deg, #7F8C8D, #BDC3C7); /* Adjust colors as desired */
+}
+
+.flight-filter-submit,
+.flight-filter-manage {
+  padding: 30px 50px; /* Adjusted padding */
+  font-size: 16px; /* Adjusted font size */
+  margin-bottom: 50px;
+}
+
+.flight-price-input,
+.flight-search-input {
+  padding: 5px;
+  width: 95%;
 }

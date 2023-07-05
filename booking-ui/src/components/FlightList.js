@@ -42,6 +42,8 @@ function FlightList() {
   const [status, setStatus] = useState({ scheduled: false, active: false, arrived: false });
   const [fields, setFields] = useState([{ field: '', value: '' }]);
   const [modalIsOpen, setModalIsOpen] = useState(false); 
+  const [minPrice, setMinPrice] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(null);
 
   const { loading, error, data } = useSubscription(FLIGHTS_SUBSCRIPTION, {
     variables: {
@@ -67,6 +69,24 @@ function FlightList() {
         field: "departure_time",
         operator: "lte",
         value: Math.floor(endTime.getTime() / 1000),
+      });
+    }
+
+    if (minPrice) {
+      filterArray.push({
+        condition: "and",
+        field: "price",
+        operator: "gte",
+        value: minPrice,
+      });
+    }
+
+    if (maxPrice) {
+      filterArray.push({
+        condition: "and",
+        field: "price",
+        operator: "lte",
+        value: maxPrice,
       });
     }
 
@@ -103,6 +123,11 @@ function FlightList() {
     setEndTime(null);
   }
 
+  const clearPrices = () => {
+    setMinPrice(null);
+    setMaxPrice(null);
+  }
+
   const openModal = () => {
     setModalIsOpen(true);
   };
@@ -117,15 +142,32 @@ function FlightList() {
   return (
     <div className="flight-list-container">
       <form className="flight-filter-form" onSubmit={handleSubmit(onSubmit)}>
-        <label className="flight-filter-label">
-          Start Time:
-          <DatePicker selected={startTime} onChange={date => setStartTime(date)} showTimeSelect dateFormat="Pp" className="flight-datepicker" />
-        </label>
-        <label className="flight-filter-label">
-          End Time:
-          <DatePicker selected={endTime} onChange={date => setEndTime(date)} showTimeSelect dateFormat="Pp" className="flight-datepicker" />
-          <button onClick={clearDates} type="button" className="flight-filter-clear">Clear</button>
-        </label>
+      <div className="flight-filter-group">
+        <div className="filter-section">
+          <label className="flight-filter-label">
+            Start Time:
+            <DatePicker selected={startTime} onChange={date => setStartTime(date)} showTimeSelect dateFormat="Pp" className="flight-datepicker" />
+          </label>
+          <label className="flight-filter-label">
+            End Time:
+            <DatePicker selected={endTime} onChange={date => setEndTime(date)} showTimeSelect dateFormat="Pp" className="flight-datepicker" />
+          </label>
+        </div>
+        <button onClick={clearDates} type="button" className="flight-filter-clear">Clear</button>
+      </div>
+      <div className="flight-filter-group">
+        <div className="filter-section">
+          <label className="flight-filter-label">
+            Min Price:
+            <input type="number" value={minPrice || ''} onChange={(e) => setMinPrice(e.target.value)} className="flight-price-input" />
+          </label>
+          <label className="flight-filter-label">
+            Max Price:
+            <input type="number" value={maxPrice || ''} onChange={(e) => setMaxPrice(e.target.value)} className="flight-price-input" />
+          </label>
+        </div>
+        <button onClick={clearPrices} type="button" className="flight-filter-clear">Clear</button>
+      </div>
         <button type="button" onClick={openModal} className="flight-filter-manage">Manage filter options</button>
         <ManageFilterModal 
             isOpen={modalIsOpen} 
@@ -134,22 +176,27 @@ function FlightList() {
             setFields={setFields} 
             filterableFields={filterableFields}
         />
-        <label className="flight-filter-label"> {}
-          Search:
-          <input type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="flight-search-input" />
-        </label>
-        <label className="checkbox-container">
-          <input type="checkbox" checked={status.scheduled} onChange={(e) => setStatus({ ...status, scheduled: e.target.checked })} />
-          Scheduled
-        </label>
-        <label className="checkbox-container">
-          <input type="checkbox" checked={status.active} onChange={(e) => setStatus({ ...status, active: e.target.checked })} />
-          Active
-        </label>
-        <label className="checkbox-container">
-          <input type="checkbox" checked={status.arrived} onChange={(e) => setStatus({ ...status, arrived: e.target.checked })} />
-          Arrived
-        </label>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label className="flight-filter-label">
+              Search:
+              <input type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="flight-search-input" />
+          </label>
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label className="checkbox-container">
+                  <input type="checkbox" checked={status.scheduled} onChange={(e) => setStatus({ ...status, scheduled: e.target.checked })} />
+                  Scheduled
+              </label>
+              <label className="checkbox-container">
+                  <input type="checkbox" checked={status.active} onChange={(e) => setStatus({ ...status, active: e.target.checked })} />
+                  Active
+              </label>
+              <label className="checkbox-container">
+                  <input type="checkbox" checked={status.arrived} onChange={(e) => setStatus({ ...status, arrived: e.target.checked })} />
+                  Arrived
+              </label>
+          </div>
+        </div>
         <input type="submit" value="Filter" className="flight-filter-submit" />
       </form>
       <div className="flight-list">

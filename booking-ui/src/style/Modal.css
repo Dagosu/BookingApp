@@ -101,3 +101,9 @@
 .add-field-btn:hover {
   background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
 }
+
+.flight-filter-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
